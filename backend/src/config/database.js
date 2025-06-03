@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-const MONGODB_URI = 'mongodb+srv://zerveck:n74SNV0Gm5i226yc@clustserverkainos.uhwrs.mongodb.net/gesapp';
+require('dotenv').config();
+const MONGODB_URI = process.env.MONGODB_URI;
 
 const connectDB = async () => {
   try {

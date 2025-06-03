@@ -44,17 +44,17 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
-// Middleware
+// CORS configuration - debe ir antes que otros middlewares
+app.use(cors());
+
+// Middleware básicos
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(helmet());
 
-// CORS configuration
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:4201',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+// Configuración de seguridad
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginOpenerPolicy: { policy: 'unsafe-none' }
 }));
 
 // Rate limiting

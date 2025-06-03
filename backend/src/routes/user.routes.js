@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const authMiddleware = require('../middleware/auth.middleware');
+const { validateJWT } = require('../middleware/auth.middleware');
 const UserController = require('../controllers/user.controller');
 const roleMiddleware = require('../middleware/role.middleware');
 
@@ -15,7 +15,7 @@ const roleMiddleware = require('../middleware/role.middleware');
  *     security:
  *       - bearerAuth: []
  */
-router.get('/', authMiddleware, roleMiddleware(['admin']), UserController.getAllUsers);
+router.get('/', validateJWT, roleMiddleware(['admin']), UserController.getAllUsers);
 
 /**
  * @swagger
@@ -33,7 +33,7 @@ router.get('/', authMiddleware, roleMiddleware(['admin']), UserController.getAll
  *     security:
  *       - bearerAuth: []
  */
-router.get('/:id', authMiddleware, UserController.getUserById);
+router.get('/:id', validateJWT, UserController.getUserById);
 
 /**
  * @swagger
@@ -52,7 +52,7 @@ router.get('/:id', authMiddleware, UserController.getUserById);
  *       - bearerAuth: []
  */
 router.put('/:id', [
-  authMiddleware,
+  validateJWT,
   body('name').optional().trim().not().isEmpty(),
   body('email').optional().isEmail().normalizeEmail(),
   body('role').optional().isIn(['user', 'admin'])
@@ -74,6 +74,6 @@ router.put('/:id', [
  *     security:
  *       - bearerAuth: []
  */
-router.delete('/:id', authMiddleware, roleMiddleware(['admin']), UserController.deleteUser);
+router.delete('/:id', validateJWT, roleMiddleware(['admin']), UserController.deleteUser);
 
 module.exports = router;

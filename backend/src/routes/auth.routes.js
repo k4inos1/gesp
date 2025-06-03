@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
-const authMiddleware = require('../middleware/auth.middleware');
+const { validateJWT } = require('../middleware/auth.middleware');
 const AuthController = require('../controllers/auth.controller');
 
 /**
@@ -72,6 +72,6 @@ router.post('/login', [
  *     security:
  *       - bearerAuth: []
  */
-router.get('/me', authMiddleware, AuthController.getProfile);
+router.get('/me', validateJWT, AuthController.getProfile);
 
 module.exports = router;
