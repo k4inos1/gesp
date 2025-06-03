@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node src/index.js",
     "start:prod": "ng serve --configuration production",
     "build": "ng build",
     "build:prod": "ng build --configuration production",
@@ -16,7 +16,9 @@
     "generate:service": "ng generate service",
     "generate:module": "ng generate module",
     "clean": "rimraf dist",
-    "update": "ng update"
+    "update": "ng update",
+    "dev": "nodemon src/index.js"
+
   },
   "private": true,
   "dependencies": {
