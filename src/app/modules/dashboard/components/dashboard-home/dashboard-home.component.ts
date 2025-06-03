@@ -12,10 +12,13 @@ export class DashboardHomeComponent implements OnInit, OnDestroy {
   stats$: Observable<DashboardStats | null>;
   systemHealth: SystemHealth | null = null;
   recentActivity: ActivityLog[] = [];
-  private subscriptions: Subscription[] = [];
+  private healthSubscription: Subscription;
+  private activitySubscription: Subscription;
 
   constructor(private dashboardService: DashboardService) {
     this.stats$ = this.dashboardService.getCurrentStats();
+    this.healthSubscription = new Subscription();
+    this.activitySubscription = new Subscription();
   }
 
   ngOnInit(): void {
@@ -24,37 +27,43 @@ export class DashboardHomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.healthSubscription.unsubscribe();
+    this.activitySubscription.unsubscribe();
   }
 
   private loadDashboardData(): void {
     // Cargar estadísticas iniciales
-    const statsSub = this.dashboardService.getStats().subscribe();
-    this.subscriptions.push(statsSub);
+    this.dashboardService.getStats().subscribe();
 
     // Cargar salud del sistema
-    const healthSub = this.dashboardService.getSystemHealth().subscribe(
+    this.healthSubscription = this.dashboardService.getSystemHealth().subscribe(
       health => this.systemHealth = health
     );
-    this.subscriptions.push(healthSub);
 
     // Cargar actividad reciente
-    const activitySub = this.dashboardService.getRecentActivity().subscribe(
+    this.activitySubscription = this.dashboardService.getRecentActivity().subscribe(
       activity => this.recentActivity = activity
     );
-    this.subscriptions.push(activitySub);
   }
 
   private setupAutoRefresh(): void {
     // Actualizar la salud del sistema cada minuto
     const healthRefresh = setInterval(() => {
-      this.dashboardService.getSystemHealth().subscribe(
+      this.healthSubscription = this.dashboardService.getSystemHealth().subscribe(
         health => this.systemHealth = health
       );
     }, 60000);
 
-    // Limpiar el intervalo cuando el componente se destruye
-    this.subscriptions.push(new Subscription(() => clearInterval(healthRefresh)));
+    // Actualizar actividad reciente cada 2 minutos
+    const activityRefresh = setInterval(() => {
+      this.activitySubscription = this.dashboardService.getRecentActivity().subscribe(
+        activity => this.recentActivity = activity
+      );
+    }, 120000);
+
+    // Limpiar los intervalos cuando el componente se destruye
+    this.healthSubscription.add(() => clearInterval(healthRefresh));
+    this.activitySubscription.add(() => clearInterval(activityRefresh));
   }
 
   getHealthStatusColor(status: string): string {

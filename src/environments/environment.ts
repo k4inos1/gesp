@@ -2,7 +2,7 @@ import { Environment } from './environment.type';
 
 export const environment: Environment = {
   production: false,
-  apiUrl: 'http://localhost:4200/api',
+  apiUrl: 'http://localhost:3000/api',
   firebase: {
     apiKey: 'your-api-key',
     authDomain: 'your-auth-domain',

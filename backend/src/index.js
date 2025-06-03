@@ -2,15 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const mongoose = require('mongoose');
 const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
-const morgan = require('morgan');
-const compression = require('compression');
-const connectDB = require('./config/database');
+const swaggerJsDoc = require('swagger-jsdoc');
+require('dotenv').config();
 
-// Rutas
+// Importar rutas
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
+const dashboardRoutes = require('./routes/dashboard.routes');
 
 const app = express();
 
@@ -21,75 +21,138 @@ const swaggerOptions = {
     info: {
       title: 'GesApp API',
       version: '1.0.0',
-      description: 'API Documentation for GesApp'
+      description: 'API Documentation for GesApp',
     },
     servers: [
       {
         url: 'http://localhost:3000',
-        description: 'Development server'
-      }
-    ]
+        description: 'Development server',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
   },
-  apis: ['./src/routes/*.js']
+  apis: ['./src/routes/*.js'],
 };
 
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100 // límite de 100 peticiones por ventana
-});
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
-app.use(compression());
-app.use(morgan('dev'));
-app.use(limiter);
 
-// CORS
+// CORS configuration
 app.use(cors({
-  origin: ['http://localhost:4200', 'http://127.0.0.1:4200'],
+  origin: process.env.FRONTEND_URL || 'http://localhost:4201',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Conectar a MongoDB
-connectDB();
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: {
+    status: 'error',
+    message: 'Demasiadas peticiones, por favor intente más tarde'
+  }
+});
+app.use('/api', limiter);
 
-// Documentación Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Logging middleware
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  next();
+});
 
-// Rutas
+// API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
-// Ruta de estado
-app.get('/api/health', (req, res) => {
+// Health Check
+app.get('/health', (req, res) => {
   res.json({
-    status: 'success',
-    message: 'API funcionando correctamente',
-    timestamp: new Date(),
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
     uptime: process.uptime()
   });
 });
 
-// Manejo de errores global
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({
     status: 'error',
-    message: err.message || 'Error interno del servidor',
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    message: 'Ruta no encontrada'
   });
 });
 
-const PORT = process.env.PORT || 3000;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:4200';
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT}`);
-  console.log(`Documentación disponible en http://localhost:${PORT}/api-docs`);
+// Error Handler
+app.use((err, req, res, next) => {
+  console.error(`[ERROR] ${new Date().toISOString()}:`, err);
+
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Error de validación',
+      errors: Object.values(err.errors).map(e => e.message)
+    });
+  }
+
+  if (err.name === 'MongoError' && err.code === 11000) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Registro duplicado'
+    });
+  }
+
+  res.status(err.status || 500).json({
+    status: 'error',
+    message: err.message || 'Error interno del servidor',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
+});
+
+// Database Connection
+mongoose
+  .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/gesapp')
+  .then(() => {
+    console.log('✅ Conectado a MongoDB');
+    
+    // Start Server
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+      console.log(`📖 Documentación API en http://localhost:${PORT}/api-docs`);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ Error al conectar a MongoDB:', err);
+    process.exit(1);
+  });
+
+// Graceful Shutdown
+process.on('SIGTERM', () => {
+  console.log('👋 Recibida señal SIGTERM. Cerrando servidor...');
+  mongoose.connection.close();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('👋 Recibida señal SIGINT. Cerrando servidor...');
+  mongoose.connection.close();
+  process.exit(0);
 });
