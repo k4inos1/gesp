@@ -1,14 +1,13 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { HttpService } from './http.service';
 import { environment } from 'src/environments/environment';
-import { HTTP_SERVICE } from '../core.module';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(@Inject(HTTP_SERVICE) private httpService: HttpService) {}
+  constructor(private http: HttpClient) {}
 
   logout(): Observable<void> {
     // Clear any stored authentication tokens
@@ -20,6 +19,6 @@ export class AuthService {
   }
 
   login(credentials: any): Observable<any> {
-    return this.httpService.post(environment.apiUrl + '/auth/login', credentials);
+    return this.http.post(environment.apiUrl + '/auth/login', credentials);
   }
 }

@@ -1,13 +1,9 @@
-import { NgModule, Optional, SkipSelf, CUSTOM_ELEMENTS_SCHEMA, InjectionToken } from '@angular/core';
+import { NgModule, Optional, SkipSelf, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthService } from './services/auth.service';
 import { NotificationService } from './services/notification.service';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
-import { AngularHttpService } from './services/angular-http.service';
-import { HttpService } from './services/http.service';
-
-export const HTTP_SERVICE = new InjectionToken<HttpService>('HTTP_SERVICE');
 
 @NgModule({
   declarations: [],
@@ -18,8 +14,7 @@ export const HTTP_SERVICE = new InjectionToken<HttpService>('HTTP_SERVICE');
   providers: [
     AuthService,
     NotificationService,
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-    { provide: HTTP_SERVICE, useClass: AngularHttpService, multi: false }
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],
   exports: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
