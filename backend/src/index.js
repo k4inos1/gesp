@@ -51,8 +51,10 @@ app.use(limiter);
 
 // CORS
 app.use(cors({
-  origin: 'http://localhost:4200',
-  credentials: true
+  origin: ['http://localhost:4200', 'http://127.0.0.1:4200'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Conectar a MongoDB
@@ -86,6 +88,7 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:4200';
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
   console.log(`Documentación disponible en http://localhost:${PORT}/api-docs`);
