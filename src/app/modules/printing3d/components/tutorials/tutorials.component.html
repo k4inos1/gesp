@@ -1,0 +1,105 @@
+<div class="tutorials-container">
+  <div class="header-section">
+    <h1 class="main-title">Tutoriales y Guías</h1>
+    <p class="subtitle">
+      Aprende a utilizar impresión 3D con nuestros tutoriales paso a paso
+    </p>
+  </div>
+
+  <div class="filters-section">
+    <mat-card>
+      <mat-card-content>
+        <div class="search-filters-container">
+          <div class="search-box">
+            <mat-form-field appearance="outline">
+              <mat-label>Buscar tutoriales</mat-label>
+              <input
+                matInput
+                [(ngModel)]="searchTerm"
+                (keyup)="updateSearch()"
+                placeholder="Ej: Calibración, Mantenimiento..."
+              />
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="filter-group">
+            <span class="filter-label">Dificultad:</span>
+            <mat-chip-set aria-label="Selección de dificultad">
+              <mat-chip
+                (click)="toggleDifficultyFilter('básico')"
+                [class.chip-selected]="difficultyFilters.includes('básico')"
+              >
+                Básico
+              </mat-chip>
+              <mat-chip
+                (click)="toggleDifficultyFilter('intermedio')"
+                [class.chip-selected]="difficultyFilters.includes('intermedio')"
+              >
+                Intermedio
+              </mat-chip>
+              <mat-chip
+                (click)="toggleDifficultyFilter('avanzado')"
+                [class.chip-selected]="difficultyFilters.includes('avanzado')"
+              >
+                Avanzado
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+
+          <div class="sort-options">
+            <mat-form-field appearance="outline">
+              <mat-label>Ordenar por</mat-label>
+              <mat-select
+                [(ngModel)]="sortOption"
+                (selectionChange)="updateSort()"
+              >
+                <mat-option value="newest">Más recientes</mat-option>
+                <mat-option value="title">Alfabético</mat-option>
+                <mat-option value="difficulty">Dificultad</mat-option>
+                <mat-option value="duration">Duración</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="tutorials-grid" *ngIf="filteredTutorials.length > 0">
+    <mat-card *ngFor="let tutorial of filteredTutorials" class="tutorial-card">
+      <mat-card-header>
+        <mat-card-title>{{ tutorial.title }}</mat-card-title>
+      </mat-card-header>
+      <div class="tutorial-content">
+        <p>{{ tutorial.description }}</p>
+        <div class="tutorial-meta">
+          <div class="meta-item">
+            <mat-icon>schedule</mat-icon>
+            <span>{{ tutorial.estimatedTime }} minutos</span>
+          </div>
+          <div class="meta-item">
+            <mat-icon>signal_cellular_alt</mat-icon>
+            <span>{{ tutorial.difficulty }}</span>
+          </div>
+        </div>
+      </div>
+      <mat-card-actions>
+        <button mat-button color="primary">Ver Tutorial</button>
+        <button mat-button color="accent" *ngIf="tutorial.videoUrl">
+          <mat-icon>play_circle_outline</mat-icon> Ver Video
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div *ngIf="filteredTutorials.length === 0" class="no-results">
+    <mat-icon>search_off</mat-icon>
+    <p>
+      No se encontraron tutoriales que coincidan con tus criterios de búsqueda.
+    </p>
+    <button mat-raised-button color="primary" (click)="clearFilters()">
+      Limpiar filtros
+    </button>
+  </div>
+</div>

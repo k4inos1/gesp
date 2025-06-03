@@ -1,0 +1,256 @@
+<div class="printing3d-container">
+  <header class="header-section">
+    <h1 class="main-title">Impresión 3D</h1>
+    <p class="subtitle">
+      Descubre el fascinante mundo de la fabricación aditiva y aprende a diseñar e imprimir tus propias creaciones tridimensionales.
+    </p>
+  </header>
+
+  <!-- Sección de tipos de impresoras -->
+  <section class="printer-types-section">
+    <h2>Tecnologías de Impresión 3D</h2>
+    <div class="printer-types-grid">
+      <mat-card class="printer-card" *ngFor="let printer of printerTypes">
+        <mat-card-header>
+          <div mat-card-avatar class="printer-icon">
+            <mat-icon>{{printer.icon}}</mat-icon>
+          </div>
+          <mat-card-title>{{printer.name}}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{printer.description}}</p>
+          
+          <mat-tab-group>
+            <mat-tab label="Ventajas">
+              <mat-list>
+                <mat-list-item *ngFor="let adv of printer.advantages">
+                  <mat-icon matListItemIcon color="primary">check_circle</mat-icon>
+                  <div matListItemTitle>{{adv}}</div>
+                </mat-list-item>
+              </mat-list>
+            </mat-tab>
+            <mat-tab label="Desventajas">
+              <mat-list>
+                <mat-list-item *ngFor="let disadv of printer.disadvantages">
+                  <mat-icon matListItemIcon color="warn">remove_circle</mat-icon>
+                  <div matListItemTitle>{{disadv}}</div>
+                </mat-list-item>
+              </mat-list>
+            </mat-tab>
+            <mat-tab label="Aplicaciones">
+              <mat-list>
+                <mat-list-item *ngFor="let app of printer.applications">
+                  <mat-icon matListItemIcon color="accent">apps</mat-icon>
+                  <div matListItemTitle>{{app}}</div>
+                </mat-list-item>
+              </mat-list>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- Sección de materiales -->
+  <section class="materials-section">
+    <h2>Materiales Populares</h2>
+    <div class="materials-grid">
+      <mat-card class="material-card" *ngFor="let material of popularMaterials">
+        <mat-card-header>
+          <mat-card-title>{{material.name}}</mat-card-title>
+          <mat-card-subtitle>{{material.type}}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="material-properties">
+            <div class="property">
+              <span class="property-label">Resistencia</span>
+              <div class="property-bar">
+                <div class="property-value" [style.width.%]="material.properties.strength * 20"></div>
+              </div>
+            </div>
+            <div class="property">
+              <span class="property-label">Flexibilidad</span>
+              <div class="property-bar">
+                <div class="property-value" [style.width.%]="material.properties.flexibility * 20"></div>
+              </div>
+            </div>
+            <div class="property">
+              <span class="property-label">Resistencia Térmica</span>
+              <div class="property-bar">
+                <div class="property-value" [style.width.%]="material.properties.temperature * 20"></div>
+              </div>
+            </div>
+            <div class="property">
+              <span class="property-label">Detalle</span>
+              <div class="property-bar">
+                <div class="property-value" [style.width.%]="material.properties.detail * 20"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="printing-temps">
+            <div class="temp-item">
+              <mat-icon>whatshot</mat-icon>
+              <span>{{material.printingTemp}}</span>
+            </div>
+            <div class="temp-item">
+              <mat-icon>grid_4x4</mat-icon>
+              <span>{{material.bedTemp}}</span>
+            </div>
+          </div>
+          
+          <mat-expansion-panel class="applications-panel">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Aplicaciones
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-list>
+              <mat-list-item *ngFor="let app of material.applications">
+                <mat-icon matListItemIcon>arrow_right</mat-icon>
+                <div matListItemTitle>{{app}}</div>
+              </mat-list-item>
+            </mat-list>
+          </mat-expansion-panel>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- Sección de proyectos destacados -->
+  <section class="featured-projects-section">
+    <h2>Proyectos Destacados</h2>
+    <div class="projects-grid">
+      <mat-card class="project-card" *ngFor="let project of featuredProjects">
+        <img mat-card-image [src]="project.image || 'assets/images/placeholder-project.jpg'" alt="{{project.name}}">
+        <mat-card-header>
+          <mat-card-title>{{project.name}}</mat-card-title>
+          <mat-card-subtitle>
+            <span class="difficulty-badge" [ngClass]="project.difficulty.toLowerCase()">
+              {{project.difficulty}}
+            </span>
+            <span class="time-badge">
+              <mat-icon>schedule</mat-icon> {{project.time}}
+            </span>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{project.description}}</p>
+          
+          <mat-expansion-panel class="project-details-panel">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Materiales y Habilidades
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            
+            <div class="project-details">
+              <div class="materials">
+                <h4>Materiales:</h4>
+                <mat-chip-set aria-label="Materiales">
+                  <mat-chip *ngFor="let material of project.materials" disabled>{{ material }}</mat-chip>
+                </mat-chip-set>
+              </div>
+              
+              <div class="skills">
+                <h4>Habilidades:</h4>
+                <mat-chip-set aria-label="Habilidades">
+                  <mat-chip *ngFor="let skill of project.skills" disabled>{{ skill }}</mat-chip>
+                </mat-chip-set>
+              </div>
+            </div>
+          </mat-expansion-panel>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">VER DETALLES</button>
+          <button mat-button color="accent">COMENZAR PROYECTO</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- Sección de ruta de aprendizaje -->
+  <section class="learning-path-section">
+    <h2>Ruta de Aprendizaje</h2>
+    <p class="section-intro">
+      Sigue esta ruta para dominar la impresión 3D, desde los conceptos básicos hasta aplicaciones avanzadas.
+    </p>
+    
+    <mat-vertical-stepper linear="false" class="learning-stepper">
+      <mat-step *ngFor="let level of learningPath">
+        <ng-template matStepLabel>{{level.level}}</ng-template>
+        <div class="step-content">
+          <h3>Habilidades a desarrollar:</h3>
+          <mat-list>
+            <mat-list-item *ngFor="let skill of level.skills">
+              <mat-icon matListItemIcon>school</mat-icon>
+              <div matListItemTitle>{{skill}}</div>
+            </mat-list-item>
+          </mat-list>
+          <div class="step-actions">
+            <button mat-raised-button color="primary">Ver recursos</button>
+          </div>
+        </div>
+      </mat-step>
+    </mat-vertical-stepper>
+  </section>
+
+  <!-- Sección de recursos -->
+  <section class="resources-section">
+    <h2>Recursos y Herramientas</h2>
+    
+    <div class="resources-grid">
+      <mat-card class="resource-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>design_services</mat-icon>
+          <mat-card-title>Software de Diseño 3D</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Herramientas recomendadas para crear tus modelos 3D, desde opciones gratuitas para principiantes hasta software profesional.</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">EXPLORAR</button>
+        </mat-card-actions>
+      </mat-card>
+      
+      <mat-card class="resource-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>settings</mat-icon>
+          <mat-card-title>Software de Laminado</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Programas para convertir tus modelos 3D en instrucciones de impresión (G-code) optimizadas para diferentes impresoras y materiales.</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">ACCEDER</button>
+        </mat-card-actions>
+      </mat-card>
+      
+      <mat-card class="resource-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>shopping_cart</mat-icon>
+          <mat-card-title>Impresoras y Materiales</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Guías de compra, comparativas y recomendaciones para elegir la impresora 3D y los materiales adecuados para tus proyectos.</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">VER GUÍAS</button>
+        </mat-card-actions>
+      </mat-card>
+      
+      <mat-card class="resource-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>forum</mat-icon>
+          <mat-card-title>Comunidad</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Únete a nuestra comunidad de makers para compartir diseños, resolver dudas técnicas y colaborar en proyectos de impresión 3D.</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button color="primary">PARTICIPAR</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </section>
+</div>

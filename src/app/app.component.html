@@ -1,0 +1,81 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button (click)="sidenav.toggle()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span>{{ title }}</span>
+  <span class="spacer"></span>
+  <button mat-icon-button [matMenuTriggerFor]="userMenu">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+  <mat-menu #userMenu="matMenu">
+    <button mat-menu-item (click)="onLogout()">
+      <mat-icon>exit_to_app</mat-icon>
+      <span>Cerrar sesión</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>
+
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #sidenav mode="over" class="sidenav">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/home" routerLinkActive="active">
+        <mat-icon>home</mat-icon>
+        <span class="nav-label">Inicio</span>
+      </a>
+
+      <mat-expansion-panel class="nav-expansion-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>build</mat-icon>
+            <span class="nav-label">Maker e IoT</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <mat-nav-list>
+          <a mat-list-item routerLink="/printing3d" routerLinkActive="active">
+            <mat-icon>view_in_ar</mat-icon>
+            <span class="nav-label">Impresión 3D</span>
+          </a>
+          <a mat-list-item routerLink="/iot-sensors" routerLinkActive="active">
+            <mat-icon>sensors</mat-icon>
+            <span class="nav-label">Sensores IoT</span>
+          </a>
+          <a mat-list-item routerLink="/programming" routerLinkActive="active">
+            <mat-icon>code</mat-icon>
+            <span class="nav-label">Programación</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel class="nav-expansion-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>school</mat-icon>
+            <span class="nav-label">Educación</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <mat-nav-list>
+          <a mat-list-item routerLink="/research" routerLinkActive="active">
+            <mat-icon>science</mat-icon>
+            <span class="nav-label">Investigación</span>
+          </a>
+          <a
+            mat-list-item
+            routerLink="/entrepreneurship"
+            routerLinkActive="active"
+          >
+            <mat-icon>trending_up</mat-icon>
+            <span class="nav-label">Emprendimiento</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="content-container">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

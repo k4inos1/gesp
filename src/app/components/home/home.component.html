@@ -1,0 +1,66 @@
+<div class="home-container">
+  <mat-card class="welcome-card">
+    <mat-card-header>
+      <mat-card-title>Bienvenido a GesApp Angular</mat-card-title>
+      <mat-card-subtitle>Una aplicación moderna con Angular y Material Design</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>
+        Esta aplicación demuestra el uso de Angular con Material Design para crear una interfaz de usuario moderna y responsiva.
+      </p>
+      <div *ngIf="loading" class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="flex-container">
+    <mat-card class="counter-card flex-item">
+      <mat-card-header>
+        <mat-card-title>Contador</mat-card-title>
+        <mat-card-subtitle>Ejemplo de manejo de estado</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="counter-display">
+          <span class="counter-value">{{ counter }}</span>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="increment()">
+          <mat-icon>add</mat-icon> Incrementar
+        </button>
+        <button mat-raised-button color="warn" (click)="decrement()" [disabled]="counter === 0">
+          <mat-icon>remove</mat-icon> Decrementar
+        </button>
+        <button mat-button (click)="reset()">Reiniciar</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="features-card flex-item">
+      <mat-card-header>
+        <mat-card-title>Características</mat-card-title>
+        <mat-card-subtitle>Tecnologías incluidas</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list>
+          <mat-list-item>
+            <mat-icon matListItemIcon>check</mat-icon>
+            <span matListItemTitle>Angular 17</span>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon>check</mat-icon>
+            <span matListItemTitle>Angular Material</span>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon>check</mat-icon>
+            <span matListItemTitle>Diseño Responsivo</span>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon>check</mat-icon>
+            <span matListItemTitle>Estructura Modular</span>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

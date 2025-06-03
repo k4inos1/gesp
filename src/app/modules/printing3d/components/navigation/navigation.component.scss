@@ -1,0 +1,103 @@
+.printing3d-navigation {
+  padding: 1rem;
+  
+  .nav-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #2196f3;
+    }
+    
+    p {
+      font-size: 1.1rem;
+      color: #666;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+  
+  .nav-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+    
+    mat-card {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+      
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      }
+      
+      &.active {
+        border-left: 4px solid #2196f3;
+        background-color: rgba(33, 150, 243, 0.05);
+      }
+      
+      .card-content {
+        display: flex;
+        align-items: center;
+        
+        mat-icon {
+          font-size: 2.5rem;
+          height: 2.5rem;
+          width: 2.5rem;
+          margin-right: 1rem;
+          color: #2196f3;
+        }
+        
+        .card-text {
+          h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.3rem;
+          }
+          
+          p {
+            margin: 0;
+            color: #666;
+          }
+        }
+      }
+    }
+  }
+  
+  .nav-tabs {
+    display: none;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+    @media (max-width: 768px) {
+      display: block;
+    }
+    
+    a {
+      display: flex;
+      align-items: center;
+      
+      mat-icon {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .nav-cards {
+      display: none;
+    }
+    
+    .nav-tabs {
+      display: block;
+    }
+  }
+}

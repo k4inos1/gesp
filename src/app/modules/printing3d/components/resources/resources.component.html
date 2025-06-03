@@ -1,0 +1,259 @@
+<div class="resources-container">
+  <div class="header-section">
+    <h1 class="main-title">Recursos de Impresión 3D</h1>
+    <p class="subtitle">Herramientas, software, materiales y comunidades para apoyar tu viaje en la impresión 3D educativa</p>
+  </div>
+
+  <!-- Filtros y búsqueda -->
+  <div class="filters-section">
+    <mat-card>
+      <mat-card-content>
+        <div class="search-filters-container">
+          <div class="search-box">
+            <mat-form-field appearance="outline">
+              <mat-label>Buscar recursos</mat-label>
+              <input matInput [(ngModel)]="searchTerm" (keyup)="updateSearch($event)" placeholder="Ej: diseño, tutoriales...">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </div>
+          
+          <div class="filter-options">
+            <mat-slide-toggle [(ngModel)]="onlyFree" (change)="toggleFreeFilter()">
+              Solo recursos gratuitos
+            </mat-slide-toggle>
+            
+            <mat-slide-toggle [(ngModel)]="onlyBeginner" (change)="toggleBeginnerFilter()">
+              Para principiantes
+            </mat-slide-toggle>
+            
+            <button mat-button color="primary" (click)="clearFilters()" 
+                    *ngIf="selectedCategories.length > 0 || selectedPlatforms.length > 0 || 
+                          selectedResourceTypes.length > 0 || onlyFree || onlyBeginner || searchTerm">
+              <mat-icon>clear</mat-icon> Limpiar filtros
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Sección de Software -->
+  <section class="software-section">
+    <h2>Software para Impresión 3D</h2>
+    
+    <div class="filter-chips">
+      <span class="filter-label">Categorías:</span>
+      <mat-chip-set aria-label="Selección de categorías">
+        <mat-chip *ngFor="let category of softwareCategories" 
+                 (click)="toggleCategoryFilter(category)" 
+                 [ngClass]="{'chip-selected': selectedCategories.includes(category)}">
+          {{ category | titlecase }}
+        </mat-chip>
+      </mat-chip-set>
+    </div>
+    
+    <div class="filter-chips">
+      <span class="filter-label">Plataformas:</span>
+      <mat-chip-set aria-label="Selección de plataformas">
+        <mat-chip *ngFor="let platform of platforms" 
+                 (click)="togglePlatformFilter(platform)" 
+                 [ngClass]="{'chip-selected': selectedPlatforms.includes(platform)}">
+          {{ platform | titlecase }}
+        </mat-chip>
+      </mat-chip-set>
+    </div>
+    
+    <div *ngIf="filterSoftware().length === 0" class="no-results">
+      <mat-icon>search_off</mat-icon>
+      <p>No se encontraron programas que coincidan con tus criterios de búsqueda.</p>
+      <button mat-raised-button color="primary" (click)="clearFilters()">Limpiar filtros</button>
+    </div>
+    
+    <div class="resources-grid">
+      <mat-card *ngFor="let software of filterSoftware()" class="resource-card">
+        <div class="resource-logo">
+          <img [src]="software.logo" [alt]="software.name + ' logo'">
+        </div>
+        <mat-card-header>
+          <mat-card-title>{{ software.name }}</mat-card-title>
+          <mat-card-subtitle>
+            <div class="resource-badges">
+              <span class="badge" [ngClass]="{'free': software.free === true, 'paid': software.free !== true}">
+                {{ software.free === true ? 'Gratuito' : (software.free === 'educativo' ? 'Gratuito para educación' : 'De pago') }}
+              </span>
+              <span class="badge" [ngClass]="{'beginner': software.beginner, 'advanced': !software.beginner}">
+                {{ software.beginner ? 'Principiante' : 'Avanzado' }}
+              </span>
+            </div>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ software.description }}</p>
+          
+          <div class="resource-tags">
+            <div class="tag-group">
+              <span class="tag-label">Categorías:</span>
+              <div class="tags">
+                <span class="tag category" *ngFor="let category of software.categories">{{ category }}</span>
+              </div>
+            </div>
+            
+            <div class="tag-group">
+              <span class="tag-label">Plataformas:</span>
+              <div class="tags">
+                <span class="tag platform" *ngFor="let platform of software.platforms">{{ platform }}</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="openExternalLink(software.url)">
+            <mat-icon>open_in_new</mat-icon> Visitar sitio
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- Sección de Recursos Educativos -->
+  <section class="educational-section">
+    <h2>Recursos Educativos</h2>
+    
+    <div class="filter-chips">
+      <span class="filter-label">Tipo de recurso:</span>
+      <mat-chip-set aria-label="Selección de tipos de recursos">
+        <mat-chip *ngFor="let type of resourceTypes" 
+                 (click)="toggleResourceTypeFilter(type)" 
+                 [ngClass]="{'chip-selected': selectedResourceTypes.includes(type)}">
+          {{ type | titlecase }}
+        </mat-chip>
+      </mat-chip-set>
+    </div>
+    
+    <div *ngIf="filterEducationalResources().length === 0" class="no-results">
+      <mat-icon>search_off</mat-icon>
+      <p>No se encontraron recursos educativos que coincidan con tus criterios de búsqueda.</p>
+      <button mat-raised-button color="primary" (click)="clearFilters()">Limpiar filtros</button>
+    </div>
+    
+    <div class="resources-grid">
+      <mat-card *ngFor="let resource of filterEducationalResources()" class="resource-card">
+        <div class="resource-logo">
+          <img [src]="resource.logo" [alt]="resource.name + ' logo'">
+        </div>
+        <mat-card-header>
+          <mat-card-title>{{ resource.name }}</mat-card-title>
+          <mat-card-subtitle>
+            <div class="resource-badges">
+              <span class="badge" [ngClass]="{'free': resource.free, 'paid': !resource.free}">
+                {{ resource.free ? 'Gratuito' : 'De pago' }}
+              </span>
+              <span class="badge type">{{ resource.type }}</span>
+            </div>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ resource.description }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="openExternalLink(resource.url)">
+            <mat-icon>open_in_new</mat-icon> Acceder
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- Sección de Materiales -->
+  <section class="materials-section">
+    <h2>Materiales y Guías</h2>
+    
+    <div *ngIf="filterMaterials().length === 0" class="no-results">
+      <mat-icon>search_off</mat-icon>
+      <p>No se encontraron materiales que coincidan con tus criterios de búsqueda.</p>
+      <button mat-raised-button color="primary" (click)="clearFilters()">Limpiar filtros</button>
+    </div>
+    
+    <div class="resources-grid">
+      <mat-card *ngFor="let material of filterMaterials()" class="resource-card">
+        <div class="resource-logo">
+          <img [src]="material.logo" [alt]="material.name + ' logo'">
+        </div>
+        <mat-card-header>
+          <mat-card-title>{{ material.name }}</mat-card-title>
+          <mat-card-subtitle>
+            <div class="resource-badges">
+              <span class="badge" [ngClass]="{'free': material.free, 'paid': !material.free}">
+                {{ material.free ? 'Gratuito' : 'De pago' }}
+              </span>
+              <span class="badge type">{{ material.type }}</span>
+            </div>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ material.description }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="openExternalLink(material.url)">
+            <mat-icon>open_in_new</mat-icon> Ver detalles
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- Sección de Comunidades -->
+  <section class="communities-section">
+    <h2>Comunidades</h2>
+    
+    <div *ngIf="filterCommunities().length === 0" class="no-results">
+      <mat-icon>search_off</mat-icon>
+      <p>No se encontraron comunidades que coincidan con tus criterios de búsqueda.</p>
+      <button mat-raised-button color="primary" (click)="clearFilters()">Limpiar filtros</button>
+    </div>
+    
+    <div class="resources-grid">
+      <mat-card *ngFor="let community of filterCommunities()" class="resource-card">
+        <div class="resource-logo">
+          <img [src]="community.logo" [alt]="community.name + ' logo'">
+        </div>
+        <mat-card-header>
+          <mat-card-title>{{ community.name }}</mat-card-title>
+          <mat-card-subtitle>
+            <div class="community-members">
+              <mat-icon>people</mat-icon>
+              <span>{{ community.members }} miembros</span>
+            </div>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ community.description }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="openExternalLink(community.url)">
+            <mat-icon>forum</mat-icon> Unirse
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- Sección de Sugerencias -->
+  <section class="suggest-section">
+    <mat-card>
+      <mat-card-header>
+        <mat-icon mat-card-avatar>lightbulb</mat-icon>
+        <mat-card-title>¿Conoces algún recurso útil?</mat-card-title>
+        <mat-card-subtitle>Ayúdanos a mejorar nuestra colección de recursos</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Si conoces algún software, recurso educativo, material o comunidad relacionada con la impresión 3D que podría ser útil para otros educadores, nos encantaría conocerlo.</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary">
+          <mat-icon>add_circle</mat-icon> Sugerir un recurso
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </section>
+</div>
