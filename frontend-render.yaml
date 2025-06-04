@@ -4,10 +4,12 @@ services:
     name: gesapp-frontend
     runtime: node
     buildCommand: |
-      npm install
-      npm run build:prod
+      npm install -g npm@latest
+      node render-build.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
         value: 20.19.2
+      - key: NPM_CONFIG_LEGACY_PEER_DEPS
+        value: "true"
