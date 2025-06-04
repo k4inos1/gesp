@@ -3,10 +3,10 @@ services:
   - type: web
     name: gesapp-frontend
     buildCommand: |
-      chmod +x ./build.sh
-      ./build.sh
+      npm install
+      npm run build:prod
     staticPublishPath: ./dist/gesapp-angular
     routes:
       - type: rewrite
-        source: "/*"
-        destination: "/index.html"
+        source: '/*'
+        destination: '/index.html'
