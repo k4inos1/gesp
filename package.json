@@ -21,13 +21,15 @@
     "generate:module": "ng generate module",
     "clean": "rimraf dist",
     "update": "ng update",
-    "postinstall": "ngcc",
     "dev": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
     "install:all": "npm install && cd backend && npm install",
     "render:build": "ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all",
     "render:deploy": "npm run render:build && render.com deploy"
   },
   "private": true,
+  "engines": {
+    "node": "18.16.0"
+  },
   "dependencies": {
     "@angular/animations": "^17.3.12",
     "@angular/cdk": "^17.0.0",
