@@ -2,9 +2,15 @@
 services:
   - type: web
     name: gesapp-frontend
-    runtime: node
-    buildCommand: npm install && npm run build:prod
+    buildCommand: |
+      npm install -g @angular/cli
+      npm install
+      npm run build:prod
     envVars:
       - key: NODE_ENV
         value: production
-    staticDir: ./dist/gesapp-angular
+    staticPublishPath: ./dist/gesapp-angular
+    routes:
+      - type: rewrite
+        source: '/*'
+        destination: '/index.html'

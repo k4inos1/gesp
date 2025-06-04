@@ -4,12 +4,13 @@ export const environment: Environment = {
   production: false,
   apiUrl: '/api',
   firebase: {
-    apiKey: 'your-api-key',
-    authDomain: 'your-auth-domain',
-    projectId: 'your-project-id',
-    storageBucket: 'your-storage-bucket',
-    messagingSenderId: 'your-messaging-sender-id',
-    appId: 'your-app-id'
+    apiKey: "AIzaSyAFCuTOFG2KYJICD2xNGTSj857FmZgtihI",
+    authDomain: "gesapp-6fe80.firebaseapp.com",
+    projectId: "gesapp-6fe80",
+    storageBucket: "gesapp-6fe80.firebasestorage.app",
+    messagingSenderId: "884687252315",
+    appId: "1:884687252315:web:fe17c98f8d5ff9364c487e",
+    measurementId: "G-MMNRM12MH9"
   },
   mqtt: {
     host: 'localhost',

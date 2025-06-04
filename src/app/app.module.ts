@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -8,14 +8,35 @@ import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { getAuth, provideAuth } from '@angular/fire/auth';
-import { getAnalytics, provideAnalytics, ScreenTrackingService, UserTrackingService } from '@angular/fire/analytics';
-import { initializeAppCheck, ReCaptchaEnterpriseProvider, provideAppCheck } from '@angular/fire/app-check';
-import { getFirestore, provideFirestore } from '@angular/fire/firestore';
-import { getFunctions, provideFunctions } from '@angular/fire/functions';
-import { getStorage, provideStorage } from '@angular/fire/storage';
-import { getRemoteConfig, provideRemoteConfig } from '@angular/fire/remote-config';
+
+// Firebase imports
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getAnalytics } from 'firebase/analytics';
+import { getFirestore } from 'firebase/firestore';
+import { getFunctions } from 'firebase/functions';
+import { getStorage } from 'firebase/storage';
+import { getRemoteConfig } from 'firebase/remote-config';
+import { environment } from '../environments/environment';
+
+// Initialize Firebase
+const app = initializeApp(environment.firebase);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const functions = getFunctions(app);
+const storage = getStorage(app);
+const remoteConfig = getRemoteConfig(app);
+
+// Only import App Check in production to avoid unnecessary checks in development
+// const appCheckProviders = environment.production ? [
+//   // Enable App Check in production with your reCAPTCHA Enterprise key
+//   // import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
+//   // initializeAppCheck(app, {
+//     provider: new ReCaptchaEnterpriseProvider('YOUR_RECAPTCHA_ENTERPRISE_SITE_KEY'),
+//     isTokenAutoRefreshEnabled: true
+//   })
+// ] : [];
 
 @NgModule({
   declarations: [
@@ -31,20 +52,7 @@ import { getRemoteConfig, provideRemoteConfig } from '@angular/fire/remote-confi
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    provideFirebaseApp(() => initializeApp({"projectId":"gesapp-6fe80","appId":"1:884687252315:web:fe17c98f8d5ff9364c487e","storageBucket":"gesapp-6fe80.firebasestorage.app","apiKey":"AIzaSyAFCuTOFG2KYJICD2xNGTSj857FmZgtihI","authDomain":"gesapp-6fe80.firebaseapp.com","messagingSenderId":"884687252315","measurementId":"G-MMNRM12MH9"})),
-    provideAuth(() => getAuth()),
-    provideAnalytics(() => getAnalytics()),
-    ScreenTrackingService,
-    UserTrackingService,
-    provideAppCheck(() => {
-      // TODO get a reCAPTCHA Enterprise here https://console.cloud.google.com/security/recaptcha?project=_
-      const provider = new ReCaptchaEnterpriseProvider(/* reCAPTCHA Enterprise site key */);
-      return initializeAppCheck(undefined, { provider, isTokenAutoRefreshEnabled: true });
-    }),
-    provideFirestore(() => getFirestore()),
-    provideFunctions(() => getFunctions()),
-    provideStorage(() => getStorage()),
-    provideRemoteConfig(() => getRemoteConfig())
+    // ...appCheckProviders
   ],
   bootstrap: [AppComponent]
 })
