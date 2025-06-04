@@ -2,10 +2,11 @@
 services:
   - type: web
     name: gesapp-frontend
-    runtime: docker
+    runtime: node
     buildCommand: |
-      docker build -t gesapp-angular .
-      docker run -d -p 10000:80 gesapp-angular
+      npm install
+      npm install -g @angular/cli@17
+      ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all
     envVars:
       - key: NODE_ENV
         value: production
