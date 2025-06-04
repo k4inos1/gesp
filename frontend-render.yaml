@@ -1,0 +1,10 @@
+# Frontend configuration for Render
+services:
+  - type: web
+    name: gesapp-frontend
+    runtime: node
+    buildCommand: npm install && npm run build:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+    staticDir: ./dist/gesapp-angular

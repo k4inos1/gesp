@@ -2,7 +2,7 @@ import { Environment } from './environment.type';
 
 export const environment: Environment = {
   production: true,
-  apiUrl: 'https://api.gesapp.com',
+  apiUrl: 'https://gesapp-backend.onrender.com/api',
   firebase: {
     apiKey: 'your-api-key',
     authDomain: 'your-auth-domain',
