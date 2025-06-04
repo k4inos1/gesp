@@ -3,8 +3,13 @@ services:
   - type: web
     name: gesapp-frontend
     buildCommand: |
+      # Instalar dependencias locales
       npm install
-      npm run build:prod
+      # Instalar Angular CLI globalmente
+      npm install -g @angular/cli@17
+      # Construir la aplicación
+      ng version
+      ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all
     staticPublishPath: ./dist/gesapp-angular
     routes:
       - type: rewrite
