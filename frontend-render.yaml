@@ -3,9 +3,7 @@ services:
   - type: web
     name: gesapp-frontend
     runtime: node
-    buildCommand: |
-      chmod +x render-build.sh
-      ./render-build.sh
+    buildCommand: npm run build
     envVars:
       - key: NODE_ENV
         value: production

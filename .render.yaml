@@ -1,0 +1,11 @@
+# Configuración para Render.com
+services:
+  - type: web
+    name: gesapp-frontend
+    env: node
+    buildCommand: npm install && npm run build:prod
+    staticPublishPath: dist/gesapp-angular
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /
