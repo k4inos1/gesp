@@ -6,3 +6,7 @@ services:
       chmod +x ./build.sh
       ./build.sh
     staticPublishPath: ./dist/gesapp-angular
+    routes:
+      - type: rewrite
+        source: '/*'
+        destination: '/index.html'
