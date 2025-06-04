@@ -35,7 +35,7 @@ if (!fs.existsSync(angularCliPath)) {
 
 // 4. Construir la aplicación
 console.log('\n4. Construyendo la aplicación...');
-const buildCommand = `node --max_old_space_size=8192 ${angularCliPath} build --configuration production --output-path=dist/gesapp-angular --output-hashing=all`;
+const buildCommand = `npx --no-install ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all`;
 runCommand(buildCommand);
 
 console.log('\n✅ Construcción completada exitosamente');

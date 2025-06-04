@@ -5,7 +5,7 @@ services:
     runtime: node
     buildCommand: |
       npm install
-      node render-build.js
+      npm run build:prod
     envVars:
       - key: NODE_ENV
         value: production
