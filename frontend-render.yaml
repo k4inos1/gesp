@@ -3,9 +3,7 @@ services:
   - type: web
     name: gesapp-frontend
     runtime: node
-    buildCommand: |
-      npm install -g npm@latest
-      node render-build.js
+    buildCommand: npm run render:deploy
     envVars:
       - key: NODE_ENV
         value: production
