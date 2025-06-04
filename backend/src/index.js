@@ -149,22 +149,35 @@ app.use((err, req, res, next) => {
 });
 
 // Database Connection
-mongoose
-  .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/gesapp')
-  .then(() => {
-    console.log('✅ Conectado a MongoDB');
+const connectDB = require('./config/database');
+
+// Iniciar la aplicación después de conectar a MongoDB
+const startServer = async () => {
+  try {
+    // Conectar a MongoDB
+    await connectDB();
     
-    // Start Server
+    // Iniciar el servidor
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
       console.log(`📖 Documentación API en http://localhost:${PORT}/api-docs`);
+      console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
     });
-  })
-  .catch((err) => {
-    console.error('❌ Error al conectar a MongoDB:', err);
+
+    // Manejar cierres inesperados
+    process.on('unhandledRejection', (err) => {
+      console.error('⚠️ Error no manejado:', err);
+      server.close(() => process.exit(1));
+    });
+  } catch (error) {
+    console.error('❌ No se pudo iniciar la aplicación:', error);
     process.exit(1);
-  });
+  }
+};
+
+// Iniciar la aplicación
+startServer();
 
 // Graceful Shutdown
 process.on('SIGTERM', () => {

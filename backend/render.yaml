@@ -13,7 +13,7 @@ services:
       - key: PORT
         value: 10000
       - key: MONGODB_URI
-        value: mongodb+srv://zerveck:n74SNV0Gm5i226yc@clustserverkainos.uhwrs.mongodb.net/gesapp?retryWrites=true&w=majority
+        value: "mongodb+srv://zerveck:n74SNV0Gm5i226yc@clustserverkainos.uhwrs.mongodb.net/gesapp?retryWrites=true&w=majority&appName=gesapp-backend"
       - key: JWT_SECRET
         value: your_jwt_secret_key_here
       - key: CORS_ORIGIN
