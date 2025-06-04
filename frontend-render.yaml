@@ -4,9 +4,8 @@ services:
     name: gesapp-frontend
     runtime: node
     buildCommand: |
-      npm install
-      npm install -g @angular/cli
-      ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all
+      chmod +x render-build.sh
+      ./render-build.sh
     envVars:
       - key: NODE_ENV
         value: production
