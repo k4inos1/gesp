@@ -45,12 +45,28 @@ const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 // CORS configuration - debe ir antes que otros middlewares
 const cors = require('cors');
+const allowedOrigins = process.env.CORS_ORIGIN ? 
+  process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()) : 
+  ['http://localhost:4200'];
+
+console.log('Orígenes permitidos por CORS:', allowedOrigins);
+
 app.use(cors({
-  origin: [
-    'https://gesapp-backend.onrender.com',
-    'http://localhost:4200' // Para desarrollo local
-  ],
-  credentials: true
+  origin: function (origin, callback) {
+    // Permitir solicitudes sin origen (como aplicaciones móviles o curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `El origen ${origin} no tiene permiso para acceder a este recurso.`;
+      console.warn(msg);
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range']
 }));
 
 // Middleware básicos

@@ -8,6 +8,7 @@
     "dev": "nodemon --exec ts-node src/index.ts",
     "build": "tsc",
     "build:watch": "tsc -w",
+    "build:prod": "npm run build && npm prune --production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
