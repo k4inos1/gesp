@@ -3,7 +3,10 @@ services:
   - type: web
     name: gesapp-frontend
     env: node
-    buildCommand: npm install && npm run build:prod
+    buildCommand: |
+      npm install
+      npm install -g @angular/cli @angular-devkit/build-angular
+      npm run build:prod
     staticPublishPath: dist/gesapp-angular
     envVars:
       - key: NODE_ENV
