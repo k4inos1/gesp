@@ -8,22 +8,21 @@ echo "1. Versiones:"
 echo "   Node: $(node -v)"
 echo "   npm: $(npm -v)"
 
-# Instalar dependencias
-echo "2. Instalando dependencias..."
-npm ci || npm install
+# Instalar dependencias locales (sin globales)
+echo "2. Instalando dependencias locales..."
+npm ci --no-fund --no-audit || npm install --no-fund --no-audit
 
-# Verificar instalación de Angular CLI
-echo "3. Verificando Angular CLI..."
-if ! command -v ng &> /dev/null; then
-    echo "   Angular CLI no encontrado, instalando globalmente..."
-    npm install -g @angular/cli
+# Instalar Angular CLI localmente si no está presente
+if [ ! -f "node_modules/.bin/ng" ]; then
+    echo "3. Instalando Angular CLI localmente..."
+    npm install --save-dev @angular/cli --no-fund --no-audit
 fi
 
 # Construir la aplicación
 echo "4. Construyendo la aplicación para producción..."
-./node_modules/.bin/ng version
+node --max_old_space_size=8192 ./node_modules/.bin/ng version
 echo ""
-./node_modules/.bin/ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all
+node --max_old_space_size=8192 ./node_modules/.bin/ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all
 
 echo ""
 echo "✅ Construcción completada exitosamente"
