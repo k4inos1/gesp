@@ -5,8 +5,7 @@ services:
     runtime: node
     buildCommand: |
       npm install
-      npm install -g @angular/cli@17
-      ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all
+      node render-build.js
     envVars:
       - key: NODE_ENV
         value: production
