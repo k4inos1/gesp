@@ -5,7 +5,8 @@ services:
     runtime: node
     buildCommand: |
       npm install
-      npm install -g @angular/cli @angular-devkit/build-angular
+      npm install --save-dev @angular-devkit/build-angular
+      npm install -g @angular/cli
       npm run build:prod
     envVars:
       - key: NODE_ENV
