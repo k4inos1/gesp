@@ -30,33 +30,25 @@ runCommand('npm -v');
 console.log('\n2. Limpiando caché de npm...');
 runCommand('npm cache clean --force');
 
-// 3. Instalar dependencias con --legacy-peer-deps para evitar conflictos
-console.log('\n3. Instalando dependencias...');
+// 3. Instalar Angular CLI globalmente primero
+console.log('\n3. Instalando Angular CLI globalmente...');
+runCommand('npm install -g @angular/cli@17 --no-fund --no-audit');
+
+// 4. Instalar dependencias principales de Angular primero
+console.log('\n4. Instalando dependencias principales de Angular...');
+runCommand('npm install @angular/animations@17 @angular/common@17 @angular/compiler@17 @angular/core@17 @angular/forms@17 @angular/platform-browser@17 @angular/platform-browser-dynamic@17 @angular/router@17 --save --legacy-peer-deps --no-fund --no-audit');
+
+// 5. Instalar dependencias de desarrollo
+console.log('\n5. Instalando dependencias de desarrollo...');
+runCommand('npm install --save-dev @angular-devkit/build-angular@17 @angular/cli@17 @angular/compiler-cli@17 typescript@~5.3.0 --legacy-peer-deps --no-fund --no-audit');
+
+// 6. Instalar el resto de dependencias
+console.log('\n6. Instalando el resto de dependencias...');
 runCommand('npm install --legacy-peer-deps --no-fund --no-audit');
 
-// 4. Instalar angular/cli globalmente si no está instalado
-console.log('\n4. Verificando Angular CLI...');
-const angularCliPath = path.join(process.cwd(), 'node_modules', '@angular', 'cli', 'bin', 'ng');
-if (!fs.existsSync(angularCliPath)) {
-  console.log('Angular CLI no encontrado, instalando...');
-  runCommand('npm install -g @angular/cli@17 --no-fund --no-audit');
-}
-
-// 5. Verificar instalación de angular-devkit/build-angular
-console.log('\n5. Verificando @angular-devkit/build-angular...');
-const buildAngularPath = path.join(process.cwd(), 'node_modules', '@angular-devkit', 'build-angular');
-if (!fs.existsSync(buildAngularPath)) {
-  console.log('@angular-devkit/build-angular no encontrado, instalando...');
-  runCommand('npm install --save-dev @angular-devkit/build-angular@17 --no-fund --no-audit');
-}
-
-// 6. Instalar dependencias de pares
-console.log('\n6. Instalando dependencias de pares...');
-runCommand('npm install --legacy-peer-deps');
-
-// 7. Construir la aplicación
+// 7. Construir la aplicación usando npx para asegurar que usamos el CLI local
 console.log('\n7. Construyendo la aplicación...');
-runCommand('ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all');
+runCommand('npx ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all');
 
 // 8. Crear archivo _redirects para SPA
 console.log('\n8. Configurando redirecciones para SPA...');

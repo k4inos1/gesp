@@ -13,3 +13,5 @@ services:
         value: 20.19.2
       - key: NPM_CONFIG_LEGACY_PEER_DEPS
         value: "true"
+      - key: NG_CLI_ANALYTICS
+        value: "false"
