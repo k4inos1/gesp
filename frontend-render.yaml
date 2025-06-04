@@ -3,8 +3,8 @@ services:
   - type: web
     name: gesapp-frontend
     buildCommand: |
-      npm install -g @angular/cli
-      npm install
+      npm install -g @angular/cli@17
+      npm ci
       npm run build:prod
     envVars:
       - key: NODE_ENV
