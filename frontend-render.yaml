@@ -2,17 +2,5 @@
 services:
   - type: web
     name: gesapp-frontend
-    buildCommand: |
-      npm install -g @angular/cli@17
-      npm install
-      npm run build:prod
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: NODE_VERSION
-        value: 18.16.0
+    buildCommand: chmod +x ./build.sh && ./build.sh
     staticPublishPath: ./dist/gesapp-angular
-    routes:
-      - type: rewrite
-        source: '/*'
-        destination: '/index.html'
