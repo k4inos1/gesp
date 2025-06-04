@@ -45,7 +45,14 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 // CORS configuration - debe ir antes que otros middlewares
-app.use(cors());
+const cors = require('cors');
+app.use(cors({
+  origin: [
+    'https://gesapp-backend.onrender.com',
+    'http://localhost:4200' // Para desarrollo local
+  ],
+  credentials: true
+}));
 
 // Middleware básicos
 app.use(express.json());
