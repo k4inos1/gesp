@@ -2,5 +2,7 @@
 services:
   - type: web
     name: gesapp-frontend
-    buildCommand: chmod +x ./build.sh && ./build.sh
+    buildCommand: |
+      chmod +x ./build.sh
+      ./build.sh
     staticPublishPath: ./dist/gesapp-angular

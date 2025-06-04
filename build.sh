@@ -1,15 +1,14 @@
 #!/bin/bash
+set -e  # Detener el script en caso de error
 
-# Instalar Angular CLI globalmente
-echo "Instalando Angular CLI..."
-npm install -g @angular/cli@17
+echo "=== Iniciando construcción de la aplicación Angular ==="
 
 # Instalar dependencias
-echo "Instalando dependencias..."
+echo "1. Instalando dependencias..."
 npm install
 
 # Construir la aplicación
-echo "Construyendo la aplicación..."
-npm run build:prod
+echo "2. Construyendo la aplicación para producción..."
+npx ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all
 
-echo "✅ Construcción completada"
+echo "✅ Construcción completada exitosamente"
