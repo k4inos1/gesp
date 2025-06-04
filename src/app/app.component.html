@@ -8,9 +8,13 @@
     <mat-icon>account_circle</mat-icon>
   </button>
   <mat-menu #userMenu="matMenu">
-    <button mat-menu-item (click)="onLogout()">
+    <button mat-menu-item (click)="onLogout()" [disabled]="loading">
       <mat-icon>exit_to_app</mat-icon>
-      <span>Cerrar sesión</span>
+      <span>
+        <span *ngIf="!loading">Cerrar sesión</span>
+        <span *ngIf="loading">Cerrando sesión...</span>
+      </span>
+      <mat-spinner *ngIf="loading" diameter="20" class="ml-2"></mat-spinner>
     </button>
   </mat-menu>
 </mat-toolbar>

@@ -5,10 +5,9 @@ services:
     runtime: node
     buildCommand: |
       npm install
-      npm install --save-dev @angular-devkit/build-angular
-      npm install -g @angular/cli
       npm run build:prod
     envVars:
       - key: NODE_ENV
         value: production
-    healthCheckPath: /
+      - key: NODE_VERSION
+        value: 20.19.2

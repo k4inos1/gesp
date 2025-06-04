@@ -1,4 +1,4 @@
-import { NgModule, isDevMode } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -20,13 +20,16 @@ import { getRemoteConfig } from 'firebase/remote-config';
 import { environment } from '../environments/environment';
 
 // Initialize Firebase
-const app = initializeApp(environment.firebase);
-const analytics = getAnalytics(app);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const functions = getFunctions(app);
-const storage = getStorage(app);
-const remoteConfig = getRemoteConfig(app);
+export const firebaseApp = initializeApp(environment.firebase);
+
+export const firebaseConfig = {
+  auth: getAuth(firebaseApp),
+  analytics: typeof window !== 'undefined' ? getAnalytics(firebaseApp) : null,
+  db: getFirestore(firebaseApp),
+  functions: getFunctions(firebaseApp),
+  storage: getStorage(firebaseApp),
+  remoteConfig: getRemoteConfig(firebaseApp)
+};
 
 // Only import App Check in production to avoid unnecessary checks in development
 // const appCheckProviders = environment.production ? [

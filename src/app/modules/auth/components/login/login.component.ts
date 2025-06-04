@@ -27,27 +27,26 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.authService.isAuthenticated()) {
+    if (this.authService.isAuthenticated) {
       this.router.navigate(['/dashboard']);
     }
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.loginForm.valid) {
       this.loading = true;
-      this.authService.login(this.loginForm.value).subscribe({
-        next: () => {
-          this.router.navigate(['/dashboard']);
-        },
-        error: (error) => {
-          this.loading = false;
-          this.snackBar.open(error.message || 'Error al iniciar sesión', 'Cerrar', {
-            duration: 5000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom'
-          });
-        }
-      });
+      try {
+        await this.authService.login(this.loginForm.value);
+        this.router.navigate(['/dashboard']);
+      } catch (error: any) {
+        this.snackBar.open(error.message || 'Error al iniciar sesión', 'Cerrar', {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom'
+        });
+      } finally {
+        this.loading = false;
+      }
     }
   }
 

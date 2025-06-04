@@ -9,20 +9,23 @@ import { NotificationService } from './core/services/notification.service';
 })
 export class AppComponent {
   title = 'GesApp';
+  loading = false;
 
   constructor(
     private authService: AuthService,
     private notificationService: NotificationService
   ) {}
 
-  onLogout(): void {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.notificationService.showSuccess('Sesión cerrada correctamente');
-      },
-      error: () => {
-        this.notificationService.showError('Error al cerrar sesión');
-      }
-    });
+  async onLogout(): Promise<void> {
+    this.loading = true;
+    try {
+      await this.authService.logout();
+      this.notificationService.showSuccess('Sesión cerrada correctamente');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      this.notificationService.showError('Error al cerrar sesión');
+    } finally {
+      this.loading = false;
+    }
   }
 }

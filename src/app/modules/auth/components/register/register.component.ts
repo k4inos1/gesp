@@ -30,7 +30,7 @@ export class RegisterComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.authService.isAuthenticated()) {
+    if (this.authService.isAuthenticated) {
       this.router.navigate(['/dashboard']);
     }
   }
@@ -41,29 +41,28 @@ export class RegisterComponent implements OnInit {
       : { mismatch: true };
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.registerForm.valid) {
       this.loading = true;
       const { confirmPassword, ...registerData } = this.registerForm.value;
       
-      this.authService.register(registerData).subscribe({
-        next: () => {
-          this.snackBar.open('Registro exitoso', 'Cerrar', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom'
-          });
-          this.router.navigate(['/dashboard']);
-        },
-        error: (error) => {
-          this.loading = false;
-          this.snackBar.open(error.message || 'Error al registrarse', 'Cerrar', {
-            duration: 5000,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom'
-          });
-        }
-      });
+      try {
+        await this.authService.register(registerData);
+        this.snackBar.open('Registro exitoso', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom'
+        });
+        this.router.navigate(['/dashboard']);
+      } catch (error: any) {
+        this.snackBar.open(error.message || 'Error al registrarse', 'Cerrar', {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom'
+        });
+      } finally {
+        this.loading = false;
+      }
     }
   }
 
