@@ -1,90 +1,96 @@
-const { execSync, exec } = require('child_process');
+const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
 
-console.log('=== Iniciando construcción en Render ===');
-
-// Detectar el sistema operativo
-const isWindows = os.platform() === 'win32';
+console.log('=== Iniciando construcción en Render (Angular 17) ===');
 
 // Función para ejecutar comandos de forma síncrona
 function runCommand(command, options = {}) {
-  console.log(`Ejecutando: ${command}`);
+  console.log(`\n📌 ${command}`);
   try {
     const defaultOptions = { 
       stdio: 'inherit',
       shell: true,
       ...options
     };
-    execSync(command, defaultOptions);
+    const result = execSync(command, { ...defaultOptions, stdio: 'pipe' }).toString();
+    if (result) console.log(result);
     return true;
   } catch (error) {
-    console.error(`❌ Error al ejecutar: ${command}`, error);
+    console.error(`\n❌ Error al ejecutar: ${command}\n${error.message}`);
     process.exit(1);
   }
 }
 
-// 1. Mostrar información del sistema
-console.log('\n1. Información del sistema:');
-runCommand('node -v');
-runCommand('npm -v');
+async function main() {
+  try {
+    // 1. Mostrar información del sistema
+    console.log('\n1. 🖥️  Información del sistema:');
+    runCommand('node -v');
+    runCommand('npm -v');
 
-// 2. Limpiar todo
-console.log('\n2. Limpiando instalación previa...');
-if (isWindows) {
-  runCommand('if exist node_modules rmdir /s /q node_modules');
-  runCommand('if exist .angular rmdir /s /q .angular');
-  runCommand('if exist package-lock.json del /f package-lock.json');
-} else {
-  runCommand('rm -rf node_modules .angular package-lock.json');
+    // 2. Limpiar instalación previa
+    console.log('\n2. 🧹 Limpiando instalación previa...');
+    runCommand('if exist node_modules rmdir /s /q node_modules');
+    runCommand('if exist .angular rmdir /s /q .angular');
+    runCommand('if exist package-lock.json del /f package-lock.json');
+    runCommand('npm cache clean --force');
+
+    // 3. Configurar npm
+    console.log('\n3. ⚙️  Configurando npm...');
+    runCommand('npm config set legacy-peer-deps true');
+    runCommand('npm config set fund false');
+    runCommand('npm config set audit false');
+
+    // 4. Instalar dependencias
+    console.log('\n4. 📦 Instalando dependencias...');
+    runCommand('npm install --include=dev --legacy-peer-deps --no-fund --no-audit');
+
+    // 5. Verificar instalación de @angular-devkit/build-angular
+    console.log('\n5. 🔍 Verificando instalación de paquetes críticos...');
+    const requiredPackages = [
+      '@angular-devkit/build-angular',
+      '@angular/cli',
+      '@angular/compiler-cli'
+    ];
+
+    for (const pkg of requiredPackages) {
+      const pkgPath = path.join('node_modules', ...pkg.split('/'));
+      if (!fs.existsSync(pkgPath)) {
+        console.log(`⚠️  ${pkg} no encontrado, instalando...`);
+        runCommand(`npm install --save-dev ${pkg}@17 --no-fund --no-audit --force`);
+      }
+    }
+
+    // 6. Construir la aplicación
+    console.log('\n6. 🏗️  Construyendo la aplicación...');
+    runCommand('npx ng version');
+    
+    // Construir con la configuración de producción
+    const buildCmd = 'npx ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all';
+    runCommand(buildCmd);
+
+    // 7. Configurar redirecciones para SPA
+    console.log('\n7. 🔄 Configurando redirecciones para SPA...');
+    const distPath = path.join(process.cwd(), 'dist', 'gesapp-angular');
+    if (!fs.existsSync(distPath)) {
+      fs.mkdirSync(distPath, { recursive: true });
+    }
+
+    // Crear archivo _redirects para manejar rutas en SPA
+    fs.writeFileSync(
+      path.join(distPath, '_redirects'),
+      '/* /index.html 200'
+    );
+
+    console.log('\n✅ ¡Construcción completada exitosamente!');
+    console.log('📦 La aplicación está lista en la carpeta dist/gesapp-angular');
+
+  } catch (error) {
+    console.error('\n❌ Error durante la construcción:', error);
+    process.exit(1);
+  }
 }
-runCommand('npm cache clean --force');
 
-// 3. Instalar Angular CLI globalmente
-console.log('\n3. Instalando Angular CLI globalmente...');
-runCommand('npm install -g @angular/cli@17 --no-fund --no-audit');
-
-// 4. Instalar todas las dependencias juntas para evitar problemas de resolución
-console.log('\n4. Instalando todas las dependencias...');
-runCommand('npm install --legacy-peer-deps --no-fund --no-audit');
-
-// 5. Instalar @angular-devkit/build-angular específicamente
-console.log('\n5. Instalando @angular-devkit/build-angular...');
-runCommand('npm install --save-dev @angular-devkit/build-angular@17 --no-fund --no-audit --legacy-peer-deps');
-
-// 6. Verificar instalación de @angular-devkit/build-angular
-console.log('\n6. Verificando instalación de @angular-devkit/build-angular...');
-const buildAngularPath = path.join(process.cwd(), 'node_modules', '@angular-devkit', 'build-angular');
-if (!fs.existsSync(buildAngularPath)) {
-  console.log('@angular-devkit/build-angular no se instaló correctamente, intentando con npm install --force...');
-  runCommand('npm install --save-dev @angular-devkit/build-angular@17 --no-fund --no-audit --force');
-}
-
-// 7. Construir la aplicación
-console.log('\n7. Construyendo la aplicación...');
-try {
-  // Primero intentamos con npx y --force
-  console.log('Intentando construcción con npx y --force...');
-  runCommand('npx --no-install ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all --force');
-} catch (error) {
-  console.log('Error al construir con npx, intentando con npm run build...');
-  // Si falla, intentamos con npm run build:prod
-  runCommand('npm run build:prod -- --force');
-}
-
-// 9. Crear archivo _redirects para SPA
-console.log('\n9. Configurando redirecciones para SPA...');
-const distPath = path.join(process.cwd(), 'dist', 'gesapp-angular');
-if (!fs.existsSync(distPath)) {
-  fs.mkdirSync(distPath, { recursive: true });
-}
-
-// Crear archivo _redirects para manejar rutas en SPA
-fs.writeFileSync(
-  path.join(distPath, '_redirects'),
-  '/* /index.html 200'
-);
-
-console.log('\n✅ Construcción completada exitosamente');
-console.log('📦 La aplicación está lista en la carpeta dist/gesapp-angular');
+// Ejecutar el proceso principal
+main();
