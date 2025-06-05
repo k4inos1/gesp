@@ -1,8 +1,12 @@
-const { execSync } = require('child_process');
+const { execSync, exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 console.log('=== Iniciando construcción en Render ===');
+
+// Detectar el sistema operativo
+const isWindows = os.platform() === 'win32';
 
 // Función para ejecutar comandos de forma síncrona
 function runCommand(command, options = {}) {
@@ -28,7 +32,13 @@ runCommand('npm -v');
 
 // 2. Limpiar todo
 console.log('\n2. Limpiando instalación previa...');
-runCommand('rm -rf node_modules .angular package-lock.json');
+if (isWindows) {
+  runCommand('if exist node_modules rmdir /s /q node_modules');
+  runCommand('if exist .angular rmdir /s /q .angular');
+  runCommand('if exist package-lock.json del /f package-lock.json');
+} else {
+  runCommand('rm -rf node_modules .angular package-lock.json');
+}
 runCommand('npm cache clean --force');
 
 // 3. Instalar Angular CLI globalmente
