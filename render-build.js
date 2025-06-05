@@ -94,7 +94,13 @@ async function main() {
     runCommand('npx ng version');
     
     // Build with production configuration
-    const buildCmd = 'npx ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all';
+    const buildCmd = 'npx ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all --base-href /';
+    
+    // Update index.html with correct base href
+    const indexPath = path.join(process.cwd(), 'src', 'index.html');
+    let indexContent = fs.readFileSync(indexPath, 'utf8');
+    indexContent = indexContent.replace(/<base href=".*?">/, '<base href="/">');
+    fs.writeFileSync(indexPath, indexContent, 'utf8');
     runCommand(buildCmd);
 
     // 7. Configure redirects for SPA
