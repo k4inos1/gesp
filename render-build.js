@@ -45,24 +45,20 @@ runCommand('npm cache clean --force');
 console.log('\n3. Instalando Angular CLI globalmente...');
 runCommand('npm install -g @angular/cli@17 --no-fund --no-audit');
 
-// 4. Instalar dependencias principales de Angular
-console.log('\n4. Instalando dependencias principales de Angular...');
-runCommand('npm install --save @angular/animations@17 @angular/common@17 @angular/compiler@17 @angular/core@17 @angular/forms@17 @angular/platform-browser@17 @angular/platform-browser-dynamic@17 @angular/router@17 --legacy-peer-deps --no-fund --no-audit');
-
-// 5. Instalar dependencias de desarrollo críticas
-console.log('\n5. Instalando dependencias de desarrollo críticas...');
-runCommand('npm install --save-dev @angular-devkit/build-angular@17 @angular-devkit/core@17 @angular-devkit/schematics@17 @angular/cli@17 @angular/compiler-cli@17 typescript@~5.3.0 --legacy-peer-deps --no-fund --no-audit');
-
-// 6. Instalar el resto de dependencias
-console.log('\n6. Instalando el resto de dependencias...');
+// 4. Instalar todas las dependencias juntas para evitar problemas de resolución
+console.log('\n4. Instalando todas las dependencias...');
 runCommand('npm install --legacy-peer-deps --no-fund --no-audit');
 
-// 7. Verificar instalación de @angular-devkit/build-angular
-console.log('\n7. Verificando instalación de @angular-devkit/build-angular...');
+// 5. Instalar @angular-devkit/build-angular específicamente
+console.log('\n5. Instalando @angular-devkit/build-angular...');
+runCommand('npm install --save-dev @angular-devkit/build-angular@17 --no-fund --no-audit --legacy-peer-deps');
+
+// 6. Verificar instalación de @angular-devkit/build-angular
+console.log('\n6. Verificando instalación de @angular-devkit/build-angular...');
 const buildAngularPath = path.join(process.cwd(), 'node_modules', '@angular-devkit', 'build-angular');
 if (!fs.existsSync(buildAngularPath)) {
-  console.log('@angular-devkit/build-angular no se instaló correctamente, intentando instalar de nuevo...');
-  runCommand('npm install --save-dev @angular-devkit/build-angular@17 --no-fund --no-audit --legacy-peer-deps');
+  console.log('@angular-devkit/build-angular no se instaló correctamente, intentando con npm install --force...');
+  runCommand('npm install --save-dev @angular-devkit/build-angular@17 --no-fund --no-audit --force');
 }
 
 // 8. Construir la aplicación usando npx para asegurar que usamos el CLI local
