@@ -103,6 +103,14 @@ async function main() {
     if (!fs.existsSync(distPath)) {
       fs.mkdirSync(distPath, { recursive: true });
     }
+    
+    // Copy _redirects file to output directory
+    const redirectsSrc = path.join(process.cwd(), 'src', '_redirects');
+    const redirectsDest = path.join(distPath, '_redirects');
+    if (fs.existsSync(redirectsSrc)) {
+      fs.copyFileSync(redirectsSrc, redirectsDest);
+      console.log('✅ _redirects file copied successfully');
+    }
 
     // Crear archivo _redirects para manejar rutas en SPA
     fs.writeFileSync(
