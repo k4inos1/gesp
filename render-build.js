@@ -2,9 +2,9 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-console.log('=== Iniciando construcción en Render (Angular 17) ===');
+console.log('=== Starting build on Render (Angular 17) ===');
 
-// Función para ejecutar comandos de forma síncrona
+// Function to run commands synchronously
 function runCommand(command, options = {}) {
   console.log(`\n📌 ${command}`);
   try {
@@ -24,30 +24,57 @@ function runCommand(command, options = {}) {
 
 async function main() {
   try {
-    // 1. Mostrar información del sistema
-    console.log('\n1. 🖥️  Información del sistema:');
+    // 1. Show system information
+    console.log('\n1. 🖥️  System information:');
     runCommand('node -v');
     runCommand('npm -v');
 
-    // 2. Limpiar instalación previa
-    console.log('\n2. 🧹 Limpiando instalación previa...');
-    runCommand('if exist node_modules rmdir /s /q node_modules');
-    runCommand('if exist .angular rmdir /s /q .angular');
-    runCommand('if exist package-lock.json del /f package-lock.json');
+    // 2. Clean previous installation (cross-platform)
+    console.log('\n2. 🧹 Cleaning previous installation...');
+    const isWindows = process.platform === 'win32';
+    
+    // Remove node_modules
+    if (fs.existsSync('node_modules')) {
+      if (isWindows) {
+        runCommand('rmdir /s /q node_modules');
+      } else {
+        runCommand('rm -rf node_modules');
+      }
+    }
+    
+    // Remove .angular directory
+    if (fs.existsSync('.angular')) {
+      if (isWindows) {
+        runCommand('rmdir /s /q .angular');
+      } else {
+        runCommand('rm -rf .angular');
+      }
+    }
+    
+    // Remove package-lock.json
+    if (fs.existsSync('package-lock.json')) {
+      if (isWindows) {
+        runCommand('del /f package-lock.json');
+      } else {
+        runCommand('rm -f package-lock.json');
+      }
+    }
+    
+    // Clean npm cache
     runCommand('npm cache clean --force');
 
-    // 3. Configurar npm
-    console.log('\n3. ⚙️  Configurando npm...');
+    // 3. Configure npm
+    console.log('\n3. ⚙️  Configuring npm...');
     runCommand('npm config set legacy-peer-deps true');
     runCommand('npm config set fund false');
     runCommand('npm config set audit false');
 
-    // 4. Instalar dependencias
-    console.log('\n4. 📦 Instalando dependencias...');
+    // 4. Install dependencies
+    console.log('\n4. 📦 Installing dependencies...');
     runCommand('npm install --include=dev --legacy-peer-deps --no-fund --no-audit');
 
-    // 5. Verificar instalación de @angular-devkit/build-angular
-    console.log('\n5. 🔍 Verificando instalación de paquetes críticos...');
+    // 5. Verify installation of @angular-devkit/build-angular
+    console.log('\n5. 🔍 Verifying critical package installations...');
     const requiredPackages = [
       '@angular-devkit/build-angular',
       '@angular/cli',
@@ -57,21 +84,21 @@ async function main() {
     for (const pkg of requiredPackages) {
       const pkgPath = path.join('node_modules', ...pkg.split('/'));
       if (!fs.existsSync(pkgPath)) {
-        console.log(`⚠️  ${pkg} no encontrado, instalando...`);
+        console.log(`⚠️  ${pkg} not found, installing...`);
         runCommand(`npm install --save-dev ${pkg}@17 --no-fund --no-audit --force`);
       }
     }
 
-    // 6. Construir la aplicación
-    console.log('\n6. 🏗️  Construyendo la aplicación...');
+    // 6. Build the application
+    console.log('\n6. 🛠️  Building the application...');
     runCommand('npx ng version');
     
-    // Construir con la configuración de producción
+    // Build with production configuration
     const buildCmd = 'npx ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all';
     runCommand(buildCmd);
 
-    // 7. Configurar redirecciones para SPA
-    console.log('\n7. 🔄 Configurando redirecciones para SPA...');
+    // 7. Configure redirects for SPA
+    console.log('\n7. 🔄 Configuring redirects for SPA...');
     const distPath = path.join(process.cwd(), 'dist', 'gesapp-angular');
     if (!fs.existsSync(distPath)) {
       fs.mkdirSync(distPath, { recursive: true });
