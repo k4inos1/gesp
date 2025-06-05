@@ -1,20 +1,20 @@
 #!/bin/bash
-set -e  # Detener el script en caso de error
+set -e  # Stop script on error
 
-echo "=== Iniciando construcción de la aplicación Angular ==="
+echo "=== Starting Angular application build ==="
 
-# Mostrar información de Node.js y npm
-echo "1. Versiones:"
+# Show Node.js and npm information
+echo "1. Versions:"
 echo "   Node: $(node -v)"
 echo "   npm: $(npm -v)"
 
-# Instalar dependencias
-echo "2. Instalando dependencias..."
+# Install dependencies
+echo "2. Installing dependencies..."
 npm install --no-fund --no-audit
 
-# Construir la aplicación
-echo "3. Construyendo la aplicación para producción..."
+# Build the application
+echo "3. Building application for production..."
 npm run build:prod
 
 echo ""
-echo "✅ Construcción completada exitosamente"
+echo "✅ Build completed successfully"

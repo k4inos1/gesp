@@ -6,7 +6,6 @@ services:
       npm install -g npm@latest
       node render-build.js
     staticPublishPath: dist/gesapp-angular
-    env: node
     envVars:
       - key: NODE_ENV
         value: production
