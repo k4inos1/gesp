@@ -61,15 +61,16 @@ if (!fs.existsSync(buildAngularPath)) {
   runCommand('npm install --save-dev @angular-devkit/build-angular@17 --no-fund --no-audit --force');
 }
 
-// 8. Construir la aplicación usando npx para asegurar que usamos el CLI local
-console.log('\n8. Construyendo la aplicación...');
+// 7. Construir la aplicación
+console.log('\n7. Construyendo la aplicación...');
 try {
-  // Primero intentamos con npx
-  runCommand('npx ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all');
+  // Primero intentamos con npx y --force
+  console.log('Intentando construcción con npx y --force...');
+  runCommand('npx --no-install ng build --configuration production --output-path=dist/gesapp-angular --output-hashing=all --force');
 } catch (error) {
   console.log('Error al construir con npx, intentando con npm run build...');
-  // Si falla, intentamos con npm run build
-  runCommand('npm run build:prod');
+  // Si falla, intentamos con npm run build:prod
+  runCommand('npm run build:prod -- --force');
 }
 
 // 9. Crear archivo _redirects para SPA
