@@ -111,35 +111,73 @@ export class AuthService implements OnDestroy {
 
   // Registrar un nuevo usuario
   async register(data: RegisterData): Promise<UserCredential> {
+    console.log('Iniciando registro para:', data.email);
+    
     try {
+      // 1. Crear usuario en Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         this.afAuth,
         data.email,
         data.password
       );
+      
+      console.log('Usuario creado en Auth:', userCredential.user?.uid);
 
-      // Actualizar perfil del usuario con el nombre
-      if (userCredential.user) {
-        await updateProfile(userCredential.user, {
-          displayName: data.name
-        });
-
-        // Crear documento de usuario en Firestore
-        const userData: Partial<UserData> = {
-          uid: userCredential.user.uid,
-          email: data.email,
-          displayName: data.name,
-          role: data.role || 'user',
-          emailVerified: false
-        };
-
-        await setDoc(doc(this.firestore, 'users', userCredential.user.uid), userData);
+      if (!userCredential.user) {
+        throw new Error('No se pudo crear el usuario');
       }
 
+      // 2. Actualizar perfil del usuario con el nombre
+      console.log('Actualizando perfil del usuario...');
+      await updateProfile(userCredential.user, {
+        displayName: data.name,
+        photoURL: null
+      });
+
+      // 3. Crear documento de usuario en Firestore
+      console.log('Creando documento en Firestore...');
+      const userData: UserData = {
+        uid: userCredential.user.uid,
+        email: data.email,
+        displayName: data.name,
+        emailVerified: false,
+        role: data.role || 'user',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      const userDocRef = doc(this.firestore, 'users', userCredential.user.uid);
+      await setDoc(userDocRef, userData);
+      
+      console.log('Usuario registrado exitosamente:', userCredential.user.uid);
       return userCredential;
-    } catch (error) {
-      console.error('Error en registro:', error);
-      throw error;
+      
+    } catch (error: any) {
+      console.error('❌ Error en registro:', error);
+      
+      // Proporcionar mensajes de error más descriptivos
+      let errorMessage = 'Error al registrar el usuario';
+      
+      if (error.code) {
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            errorMessage = 'El correo electrónico ya está en uso';
+            break;
+          case 'auth/invalid-email':
+            errorMessage = 'El correo electrónico no es válido';
+            break;
+          case 'auth/weak-password':
+            errorMessage = 'La contraseña es demasiado débil';
+            break;
+          case 'auth/operation-not-allowed':
+            errorMessage = 'La operación no está permitida';
+            break;
+          default:
+            errorMessage = error.message || errorMessage;
+        }
+      }
+      
+      throw new Error(errorMessage);
     }
   }
 
