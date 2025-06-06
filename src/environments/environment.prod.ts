@@ -37,7 +37,7 @@ export const environment: Environment = {
   
   // Configuración de reCAPTCHA
   recaptcha: {
-    siteKey: '6LcK3v8SAAAAAABsODqGqZaStZlDz9YwFHUh_mrZ', // Reemplaza con tu clave de producción
+    siteKey: '6LdaqFcrAAAAALAyH_t9NOfxd-N7wPB9GwAwCf7e', // Reemplaza con tu clave de producción
     theme: 'light',
     size: 'normal'
   },
