@@ -1,4 +1,4 @@
-import { Injectable, NgZone, OnDestroy } from '@angular/core';
+import { Injectable, NgZone, OnDestroy, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, from, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -14,9 +14,11 @@ import {
   onAuthStateChanged,
   sendPasswordResetEmail,
   updateProfile,
-  User
+  User,
+  authState,
+  user
 } from '@angular/fire/auth';
-import { doc, setDoc, getFirestore, getDoc, Firestore } from '@angular/fire/firestore';
+import { doc, setDoc, getFirestore, getDoc, Firestore, collection, docData } from '@angular/fire/firestore';
 
 export interface UserData {
   uid: string;
@@ -50,13 +52,13 @@ export class AuthService implements OnDestroy {
   private destroy$ = new BehaviorSubject<boolean>(false);
   private tokenExpirationTimer: any;
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    private ngZone: NgZone,
-    private afAuth: Auth,
-    private firestore: Firestore
-  ) {
+  private readonly afAuth = inject(Auth);
+  private readonly firestore = inject(Firestore);
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
+
+  constructor() {
     this.initAuthStateListener();
   }
 
@@ -66,10 +68,10 @@ export class AuthService implements OnDestroy {
   }
 
   private initAuthStateListener(): void {
-    onAuthStateChanged(this.afAuth, (user) => {
+    this.afAuth.onAuthStateChanged((user) => {
       this.ngZone.run(() => {
-        this.authState = user;
         if (user) {
+          this.authState = user;
           this.getUserData(user.uid).subscribe(userData => {
             const userObj: UserData = {
               uid: user.uid,
@@ -87,6 +89,7 @@ export class AuthService implements OnDestroy {
             this.setAutoLogout(24 * 60 * 60 * 1000);
           });
         } else {
+          this.authState = null;
           this.currentUserSubject.next(null);
           localStorage.removeItem('user');
         }

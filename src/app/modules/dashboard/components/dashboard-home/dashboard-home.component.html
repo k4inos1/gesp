@@ -24,6 +24,17 @@
     </mat-card>
   </div>
 
+  <!-- Quick Actions -->
+  <div class="quick-actions" style="margin: 20px 0;">
+    <h2>Acciones Rápidas</h2>
+    <div style="display: flex; gap: 10px;">
+      <a mat-raised-button color="primary" routerLink="/dashboard/roadmap">
+        <mat-icon>timeline</mat-icon>
+        Ver Roadmap
+      </a>
+    </div>
+  </div>
+
   <!-- Estado del Sistema -->
   <div class="system-health" *ngIf="systemHealth">
     <mat-card>

@@ -1,11 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort, Sort } from '@angular/material/sort';
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-roadmap',
   templateUrl: './roadmap.component.html',
   styleUrls: ['./roadmap.component.scss']
 })
-export class RoadmapComponent implements OnInit {
+export class RoadmapComponent implements OnInit, AfterViewInit {
   // Columnas para la tabla de roadmap
   displayedColumns: string[] = ['year', 'goal', 'expectedResult'];
   
@@ -17,6 +20,21 @@ export class RoadmapComponent implements OnInit {
     { year: '2028', goal: 'Reconocimiento nacional', expectedResult: 'Participación en iniciativas del Ministerio de Educación y CORFO' },
     { year: '2029', goal: 'Comunidad autosostenida', expectedResult: 'Comunidad maker INACAP con mentoría intergeneracional y spin-offs estudiantiles' }
   ];
+  
+  dataSource = new MatTableDataSource(this.roadmapData);
+  @ViewChild(MatSort) sort!: MatSort;
+  
+  ngAfterViewInit() {
+    if (this.sort) {
+      this.dataSource.sort = this.sort;
+      
+      // Set default sort
+      const sortState: Sort = {active: 'year', direction: 'asc'};
+      this.sort.active = sortState.active;
+      this.sort.direction = sortState.direction;
+      this.sort.sortChange.emit(sortState);
+    }
+  }
   
   // Datos de diagnóstico inicial
   diagnosticData = {
@@ -89,8 +107,10 @@ export class RoadmapComponent implements OnInit {
     description: 'Esto aumenta la empleabilidad e incluso puede conectarse con futuros diplomados o mallas curriculares.'
   };
 
-  constructor() { }
+  constructor(private _liveAnnouncer: LiveAnnouncer) { }
 
   ngOnInit(): void {
+    // Apply any initial sorting or filtering here if needed
+    this.dataSource.sort = this.sort;
   }
 }

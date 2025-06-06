@@ -1,8 +1,7 @@
 import { Environment } from './environment.type';
 
-export const environment: Environment = {
+export const environment = {
   production: false,
-  apiUrl: '/api',
   firebase: {
     apiKey: "AIzaSyAFCuTOFG2KYJICD2xNGTSj857FmZgtihI",
     authDomain: "gesapp-6fe80.firebaseapp.com",
