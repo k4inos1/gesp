@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../../core/services/auth.service';
+import { GoogleAuthService } from '../../../../core/services/google-auth.service';
 
 @Component({
   selector: 'app-login',
@@ -12,11 +13,13 @@ import { AuthService } from '../../../../core/services/auth.service';
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading = false;
+  googleLoading = false;
   hidePassword = true;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
+    private googleAuthService: GoogleAuthService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {
@@ -38,8 +41,9 @@ export class LoginComponent implements OnInit {
       try {
         await this.authService.login(this.loginForm.value);
         this.router.navigate(['/dashboard']);
-      } catch (error: any) {
-        this.snackBar.open(error.message || 'Error al iniciar sesión', 'Cerrar', {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Error al iniciar sesión';
+        this.snackBar.open(errorMessage, 'Cerrar', {
           duration: 5000,
           horizontalPosition: 'center',
           verticalPosition: 'bottom'
@@ -50,16 +54,48 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  getErrorMessage(field: string): string {
-    if (this.loginForm.get(field)?.hasError('required')) {
-      return 'Este campo es requerido';
+  getErrorMessage(controlName: string): string {
+    const control = this.loginForm.get(controlName);
+    if (control?.hasError('required')) {
+      return 'Este campo es obligatorio';
     }
-    if (field === 'email' && this.loginForm.get('email')?.hasError('email')) {
-      return 'Email inválido';
+    if (control?.hasError('email')) {
+      return 'Por favor ingresa un email válido';
     }
-    if (field === 'password' && this.loginForm.get('password')?.hasError('minlength')) {
-      return 'La contraseña debe tener al menos 6 caracteres';
+    if (control?.hasError('minlength')) {
+      return `La contraseña debe tener al menos ${control.errors?.['minlength'].requiredLength} caracteres`;
     }
     return '';
+  }
+
+  async signInWithGoogle(): Promise<void> {
+    try {
+      this.googleLoading = true;
+      // signInWithGoogle maneja la navegación internamente
+      await this.googleAuthService.signInWithGoogle();
+      
+      // Mostrar mensaje de éxito
+      this.snackBar.open('¡Inicio de sesión exitoso con Google!', 'Cerrar', {
+        duration: 5000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+        panelClass: ['success-snackbar']
+      });
+      // La navegación se maneja dentro del servicio
+    } catch (error) {
+      console.error('Error al iniciar sesión con Google:', error);
+      this.snackBar.open(
+        'Error al iniciar sesión con Google. Por favor, inténtalo de nuevo.',
+        'Cerrar',
+        {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+          panelClass: ['error-snackbar']
+        }
+      );
+    } finally {
+      this.googleLoading = false;
+    }
   }
 }
