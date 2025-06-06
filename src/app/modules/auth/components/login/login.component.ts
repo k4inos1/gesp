@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -21,7 +21,8 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private googleAuthService: GoogleAuthService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private ngZone: NgZone
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -71,17 +72,26 @@ export class LoginComponent implements OnInit {
   async signInWithGoogle(): Promise<void> {
     try {
       this.googleLoading = true;
-      // signInWithGoogle maneja la navegación internamente
-      await this.googleAuthService.signInWithGoogle();
       
-      // Mostrar mensaje de éxito
-      this.snackBar.open('¡Inicio de sesión exitoso con Google!', 'Cerrar', {
-        duration: 5000,
-        horizontalPosition: 'center',
-        verticalPosition: 'bottom',
-        panelClass: ['success-snackbar']
-      });
-      // La navegación se maneja dentro del servicio
+      // Iniciar sesión con Google
+      const userCredential = await this.googleAuthService.signInWithGoogle();
+      
+      if (userCredential?.user) {
+        // Mostrar mensaje de éxito
+        this.snackBar.open('¡Inicio de sesión exitoso con Google!', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+          panelClass: ['success-snackbar']
+        });
+        
+        // Navegar al dashboard después de un breve retraso para que se vea el mensaje
+        setTimeout(() => {
+          this.ngZone.run(() => {
+            this.router.navigate(['/dashboard']);
+          });
+        }, 1000);
+      }
     } catch (error) {
       console.error('Error al iniciar sesión con Google:', error);
       this.snackBar.open(

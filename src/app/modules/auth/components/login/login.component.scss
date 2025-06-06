@@ -1,4 +1,4 @@
-@import '~@angular/material/theming';
+@use '@angular/material' as mat;
 
 .login-container {
   display: flex;
@@ -8,7 +8,7 @@
   padding: 20px;
   background: linear-gradient(135deg, #1976d2 0%, #64b5f6 100%);
   
-  @include mat-elevation-transition();
+  @include mat.elevation-transition();
 
   .login-card {
     width: 100%;
@@ -66,7 +66,7 @@
             
             &:hover {
               background-color: #f8f9fa;
-              @include mat-elevation(1);
+              @include mat.elevation(1);
             }
 
             .google-icon {

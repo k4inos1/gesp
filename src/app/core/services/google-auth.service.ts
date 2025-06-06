@@ -6,7 +6,8 @@ import {
   signInWithPopup,
   signOut,
   getRedirectResult,
-  User as FirebaseUser
+  User as FirebaseUser,
+  UserCredential
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -101,7 +102,7 @@ export class GoogleAuthService {
     }
   }
 
-  async signInWithGoogle(): Promise<void> {
+  async signInWithGoogle(): Promise<UserCredential | null> {
     try {
       // Verificar si estamos en un entorno de navegador
       if (typeof this.document.defaultView === 'undefined') {
@@ -118,6 +119,10 @@ export class GoogleAuthService {
       // Usar redirección en lugar de popup
       await signInWithRedirect(this.auth, this.googleProvider);
       
+      // Si llegamos aquí, la redirección fue exitosa, pero no tenemos el resultado aún
+      // El resultado se manejará en el método handleRedirectResult
+      return null;
+      
     } catch (error) {
       console.error('Error al iniciar sesión con Google (redirección):', error);
       
@@ -133,7 +138,9 @@ export class GoogleAuthService {
           const result = await signInWithPopup(this.auth, this.googleProvider);
           if (result?.user) {
             await this.handleUserAfterAuth(result.user);
+            return result;
           }
+          return null;
         } catch (popupError) {
           const popupErrorObj = popupError instanceof Error 
             ? { code: 'auth/popup-error', message: popupError.message }
@@ -150,8 +157,6 @@ export class GoogleAuthService {
   
   private async handleUserAfterAuth(user: FirebaseUser): Promise<void> {
     try {
-      console.log('Usuario autenticado con Google:', user);
-      
       // Verificar si el usuario ya existe en Firestore
       const userDoc = await this.userService.getUser(user.uid).toPromise();
       
@@ -179,13 +184,14 @@ export class GoogleAuthService {
         await this.userService.createUser(userData);
       }
       
-      // Navegar al dashboard después de autenticación exitosa
+      // Navegar al dashboard después de iniciar sesión exitosamente
       this.ngZone.run(() => {
         this.router.navigate(['/dashboard']);
       });
       
     } catch (error) {
       console.error('Error al manejar el usuario después de la autenticación:', error);
+      this.handleAuthError(error);
       throw error;
     }
   }
