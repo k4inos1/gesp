@@ -1,55 +1,29 @@
-import { Injectable, Optional } from '@angular/core';
-import { Storage, getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from '@angular/fire/storage';
-import { FirebaseApp } from '@angular/fire/app';
+import { Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
-  private storage: Storage | null = null;
-
-  constructor(@Optional() private firebaseApp: FirebaseApp) {
-    try {
-      if (firebaseApp) {
-        this.storage = getStorage(firebaseApp);
-        console.log('Firebase Storage initialized successfully');
-      } else {
-        console.warn('Firebase App not available for Storage');
-      }
-    } catch (e) {
-      console.error('Failed to initialize Firebase Storage', e);
-    }
+  constructor() {
+    console.warn('⚠️ StorageService está deshabilitado. Firebase Storage no está en uso.');
   }
 
   async uploadFile(file: File, path: string): Promise<string> {
-    if (!this.storage) {
-      throw new Error('Storage is not available');
-    }
-
-    const storageRef = ref(this.storage, path);
-    const snapshot = await uploadBytes(storageRef, file);
-    return getDownloadURL(snapshot.ref);
+    console.warn('⚠️ Intento de subir archivo deshabilitado:', path);
+    throw new Error('El almacenamiento de archivos está deshabilitado');
   }
 
   async getFileUrl(path: string): Promise<string> {
-    if (!this.storage) {
-      throw new Error('Storage is not available');
-    }
-
-    const storageRef = ref(this.storage, path);
-    return getDownloadURL(storageRef);
+    console.warn('⚠️ Intento de obtener URL deshabilitado:', path);
+    throw new Error('El almacenamiento de archivos está deshabilitado');
   }
 
   async deleteFile(path: string): Promise<void> {
-    if (!this.storage) {
-      throw new Error('Storage is not available');
-    }
-
-    const storageRef = ref(this.storage, path);
-    return deleteObject(storageRef);
+    console.warn('⚠️ Intento de eliminar archivo deshabilitado:', path);
+    throw new Error('El almacenamiento de archivos está deshabilitado');
   }
 
   isAvailable(): boolean {
-    return this.storage !== null;
+    return false; // Siempre falso ya que el almacenamiento está deshabilitado
   }
 }

@@ -130,14 +130,15 @@ initializeFirebaseEmulators().catch(console.error);
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     {
       provide: RECAPTCHA_V3_SITE_KEY,
-      useValue: '6LcK3v8SAAAAAABsODqGqZaStZlDz9YwFHUh_mrZ' // Clave de sitio de producción
+      useValue: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' // Clave de prueba de reCAPTCHA v2
     },
     {
       provide: RECAPTCHA_SETTINGS,
       useValue: {
-        siteKey: '6LcK3v8SAAAAAABsODqGqZaStZlDz9YwFHUh_mrZ',
+        siteKey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
         theme: 'light',
-        size: 'normal'
+        size: 'normal',
+        type: 'image'  // Asegurarse de que sea del tipo correcto
       } as RecaptchaSettings
     },
     provideAnimationsAsync()
