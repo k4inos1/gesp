@@ -16,5 +16,8 @@ export const environment: Environment = {
     host: 'mqtt.gesapp.com',
     port: 8883,
     path: '/mqtt'
+  },
+  recaptcha: {
+    siteKey: 'your-recaptcha-site-key' // Reemplaza con tu clave de sitio reCAPTCHA
   }
 };

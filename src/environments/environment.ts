@@ -17,6 +17,9 @@ export const environment: Environment = {
     host: 'localhost',
     port: 8883,
     path: '/mqtt'
+  },
+  recaptcha: {
+    siteKey: '6LdaqFcrAAAAALAyH_t9NOfxd-N7wPB9GwAwCf7e' // Clave de sitio para desarrollo
   }
 };
 

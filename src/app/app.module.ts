@@ -2,6 +2,7 @@ import { NgModule, ErrorHandler, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 
 // Firebase
 import { initializeApp } from 'firebase/app';
@@ -13,6 +14,9 @@ import { provideFirebaseApp } from '@angular/fire/app';
 import { provideAuth } from '@angular/fire/auth';
 import { provideFirestore } from '@angular/fire/firestore';
 import { provideStorage } from '@angular/fire/storage';
+
+// reCAPTCHA
+import { RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -32,6 +36,9 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTableModule } from '@angular/material/table';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 // Firebase is now initialized in CoreModule
 
@@ -73,27 +80,37 @@ if (!environment.production) {
   console.log('Modo producción: Usando servicios de Firebase en la nube');
 }
 
+// Configuración de los proveedores de Firebase
+const firebaseProviders = [
+  provideFirebaseApp(() => initializeApp(environment.firebase)),
+  provideAuth(() => getAuth()),
+  provideFirestore(() => getFirestore()),
+  provideStorage(() => getStorage())
+];
+
 @NgModule({
   declarations: [
     AppComponent
   ],
   imports: [
-    // Angular modules
+    // Módulos de Angular
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
+    RouterModule,
     
-    // Firebase
-    provideFirebaseApp(() => firebaseApp),
-    provideAuth(() => auth),
-    provideFirestore(() => firestore),
+    // Módulos de Firebase
+    ...firebaseProviders,
     
-    // App modules
+    // Módulos de la aplicación
     CoreModule,
-    AppRoutingModule,
     SharedModule,
+    AppRoutingModule,
     
-    // Angular Material Modules
+    // Módulos de terceros
+    RecaptchaV3Module,
+    
+    // Módulos de Angular Material
     MatToolbarModule,
     MatButtonModule,
     MatSidenavModule,
@@ -105,14 +122,14 @@ if (!environment.production) {
     MatTableModule,
     MatExpansionModule,
     MatProgressSpinnerModule,
-    // App Modules
-    AppRoutingModule,
-    CoreModule,
-    SharedModule
+    MatProgressBarModule,
+    MatSnackBarModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    { provide: ErrorHandler, useClass: GlobalErrorHandler }
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.recaptcha.siteKey },
+    provideAnimationsAsync()
   ],
   bootstrap: [AppComponent]
 })

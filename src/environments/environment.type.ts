@@ -1,3 +1,7 @@
+export interface RecaptchaConfig {
+  siteKey: string;
+}
+
 export interface Environment {
   production: boolean;
   apiUrl: string;
@@ -15,4 +19,5 @@ export interface Environment {
     port: number;
     path: string;
   };
+  recaptcha: RecaptchaConfig;
 }

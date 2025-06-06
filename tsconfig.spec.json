@@ -2,14 +2,27 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
+    "module": "commonjs",
     "types": [
       "jasmine",
       "node",
-      "@types/jasmine"
+      "karma",
+      "jasminewd2"
     ],
     "esModuleInterop": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "target": "es5",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "lib": [
+      "es2018",
+      "dom"
+    ]
   },
+  "files": [
+    "src/test.ts"
+  ],
   "include": [
     "src/**/*.spec.ts",
     "src/**/*.d.ts"
