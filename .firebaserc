@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "gesapp-6fe80"
+  },
+  "targets": {
+    "gesapp-6fe80": {
+      "hosting": {
+        "default": [
+          "gesapp-angular"
+        ]
+      }
+    }
   }
 }
