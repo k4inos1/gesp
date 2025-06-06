@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { initializeApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 import { environment } from '../environments/environment';
 import { provideFirebaseApp } from '@angular/fire/app';
 import { provideAuth } from '@angular/fire/auth';
@@ -52,6 +53,36 @@ const firebaseApp = initializeApp(environment.firebase);
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 
+// Inicializar servicios de Firebase de forma segura
+const initializeFirebaseServices = (): void => {
+  try {
+    // Inicializar Auth
+    console.log('🔑 Inicializando Firebase Auth...');
+    getAuth(firebaseApp);
+    
+    // Inicializar Firestore
+    console.log('📚 Inicializando Firestore...');
+    getFirestore(firebaseApp);
+    
+    // Inicializar Storage (solo si se va a usar)
+    try {
+      getStorage(firebaseApp);
+      console.log('📦 Firebase Storage inicializado correctamente');
+    } catch (storageError) {
+      console.warn('ℹ️ Firebase Storage no está disponible:', 
+        storageError instanceof Error ? storageError.message : 'Error desconocido');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error al inicializar servicios de Firebase:', 
+      error instanceof Error ? error.message : 'Error desconocido');
+    // No detener la aplicación, continuar sin los servicios de Firebase
+  }
+};
+
+// Inicializar todos los servicios de Firebase
+initializeFirebaseServices();
+
 console.log('✅ Firebase inicializado correctamente');
 
 // Función para configurar emuladores de Firebase
@@ -61,17 +92,22 @@ const initializeFirebaseEmulators = async () => {
       // Solo conectar emuladores si estamos en desarrollo
       console.log('Configurando emuladores de Firebase...');
       
-      // Configurar emulador de Auth
-      console.log('Conectando a Auth emulator en http://localhost:9099');
-      connectAuthEmulator(auth, 'http://localhost:9099', { 
-        disableWarnings: true 
-      });
-      
-      // Configurar emulador de Firestore
-      console.log('Conectando a Firestore emulator en localhost:8080');
-      connectFirestoreEmulator(firestore, 'localhost', 8080);
-      
-      console.log('✅ Firebase emulators conectados correctamente');
+      // Verificar si estamos en el navegador
+      if (typeof window !== 'undefined') {
+        // Configurar emulador de Auth
+        console.log('Conectando a Auth emulator en http://localhost:9099');
+        connectAuthEmulator(auth, 'http://localhost:9099', { 
+          disableWarnings: true 
+        });
+        
+        // Configurar emulador de Firestore
+        console.log('Conectando a Firestore emulator en localhost:8080');
+        connectFirestoreEmulator(firestore, 'localhost', 8080);
+        
+        console.log('✅ Firebase emulators conectados correctamente');
+      } else {
+        console.warn('No se pueden conectar emuladores fuera del navegador');
+      }
     } catch (error) {
       console.error('❌ Error al conectar con los emuladores de Firebase:', error);
     }
