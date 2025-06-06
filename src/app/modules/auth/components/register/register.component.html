@@ -1,10 +1,26 @@
 <div class="register-container">
   <mat-card class="register-card">
     <mat-card-header>
-      <mat-card-title>Registro</mat-card-title>
+      <mat-card-title>Crear una cuenta</mat-card-title>
+      <mat-card-subtitle>Completa el formulario o regístrate con Google</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
+      <!-- Botón de Google -->
+      <div class="google-button-container" (click)="signInWithGoogle()">
+        <button mat-stroked-button color="primary" class="google-button" type="button" [disabled]="googleLoading">
+          <img src="assets/images/google-logo.svg" alt="Google" class="google-logo">
+          <span>Registrarse con Google</span>
+          <mat-spinner *ngIf="googleLoading" diameter="20" class="google-spinner"></mat-spinner>
+        </button>
+      </div>
+
+      <!-- Separador -->
+      <div class="separator">
+        <span class="separator-line"></span>
+        <span class="separator-text">o</span>
+        <span class="separator-line"></span>
+      </div>
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline">
           <mat-label>Nombre</mat-label>

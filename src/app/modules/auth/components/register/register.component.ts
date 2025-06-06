@@ -1,23 +1,35 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
+import { GoogleAuthService } from '../../../../core/services/google-auth.service';
+
+// Función de validación personalizada para la coincidencia de contraseñas
+export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const password = control.get('password');
+  const confirmPassword = control.get('confirmPassword');
+  return password && confirmPassword && password.value === confirmPassword.value ? null : { passwordMismatch: true };
+};
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent implements OnInit, OnDestroy {
   registerForm: FormGroup;
   loading = false;
+  googleLoading = false;
   hidePassword = true;
   hideConfirmPassword = true;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
+    private googleAuthService: GoogleAuthService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {
@@ -41,24 +53,51 @@ export class RegisterComponent implements OnInit {
       : { mismatch: true };
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   async onSubmit(): Promise<void> {
     if (this.registerForm.valid) {
       this.loading = true;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword, ...registerData } = this.registerForm.value;
       
       try {
         await this.authService.register(registerData);
-        this.snackBar.open('Registro exitoso', 'Cerrar', {
-          duration: 3000,
-          horizontalPosition: 'center',
-          verticalPosition: 'bottom'
-        });
-        this.router.navigate(['/dashboard']);
-      } catch (error: any) {
-        this.snackBar.open(error.message || 'Error al registrarse', 'Cerrar', {
+        this.snackBar.open('¡Registro exitoso!', 'Cerrar', {
           duration: 5000,
           horizontalPosition: 'center',
-          verticalPosition: 'bottom'
+          verticalPosition: 'bottom',
+          panelClass: ['success-snackbar']
+        });
+        this.router.navigate(['/dashboard']);
+      } catch (error: unknown) {
+        console.error('Error en el registro:', error);
+        let errorMessage = 'Ocurrió un error al registrarse. Por favor, inténtalo de nuevo.';
+        
+        if (error && typeof error === 'object' && 'code' in error) {
+          const errorCode = String(error.code);
+          switch (errorCode) {
+            case 'auth/email-already-in-use':
+              errorMessage = 'El correo electrónico ya está en uso.';
+              break;
+            case 'auth/invalid-email':
+              errorMessage = 'El correo electrónico no es válido.';
+              break;
+            case 'auth/weak-password':
+              errorMessage = 'La contraseña es demasiado débil. Debe tener al menos 6 caracteres.';
+              break;
+            case 'auth/operation-not-allowed':
+              errorMessage = 'La operación no está permitida. Contacta al administrador.';
+              break;
+          }
+        }
+        
+        this.snackBar.open(errorMessage, 'Cerrar', {
+          duration: 5000,
+          panelClass: ['error-snackbar']
         });
       } finally {
         this.loading = false;
@@ -66,22 +105,54 @@ export class RegisterComponent implements OnInit {
     }
   }
 
+  async signInWithGoogle(): Promise<void> {
+    try {
+      this.googleLoading = true;
+      const user = await this.googleAuthService.signInWithGoogle();
+      
+      if (user) {
+        this.snackBar.open('¡Inicio de sesión exitoso con Google!', 'Cerrar', {
+          duration: 5000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+          panelClass: ['success-snackbar']
+        });
+        this.router.navigate(['/dashboard']);
+      }
+    } catch (error) {
+      console.error('Error al iniciar sesión con Google:', error);
+      this.snackBar.open(
+        'Error al iniciar sesión con Google. Por favor, inténtalo de nuevo.',
+        'Cerrar',
+        { 
+          duration: 5000,
+          panelClass: ['error-snackbar']
+        }
+      );
+    } finally {
+      this.googleLoading = false;
+    }
+  }
+
   getErrorMessage(field: string): string {
-    if (this.registerForm.get(field)?.hasError('required')) {
-      return 'Este campo es requerido';
+    const control = this.registerForm.get(field);
+    
+    if (control?.hasError('required')) {
+      return 'Este campo es obligatorio';
     }
-    if (field === 'email' && this.registerForm.get('email')?.hasError('email')) {
-      return 'Email inválido';
+    
+    if (field === 'email' && control?.hasError('email')) {
+      return 'Ingresa un correo electrónico válido';
     }
-    if (field === 'password' && this.registerForm.get('password')?.hasError('minlength')) {
+    
+    if (field === 'password' && control?.hasError('minlength')) {
       return 'La contraseña debe tener al menos 6 caracteres';
     }
-    if (field === 'name' && this.registerForm.get('name')?.hasError('minlength')) {
-      return 'El nombre debe tener al menos 3 caracteres';
-    }
+    
     if (field === 'confirmPassword' && this.registerForm.hasError('mismatch')) {
       return 'Las contraseñas no coinciden';
     }
+    
     return '';
   }
 }

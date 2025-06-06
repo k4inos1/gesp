@@ -18,15 +18,37 @@ import {
   authState,
   user
 } from '@angular/fire/auth';
-import { doc, setDoc, getFirestore, getDoc, Firestore, collection, docData } from '@angular/fire/firestore';
+import { Firestore } from '@angular/fire/firestore';
+import { UserService } from './user.service';
 
 export interface UserData {
+  // Identificación
   uid: string;
+  
+  // Información básica
   email: string | null;
   displayName: string | null;
   emailVerified: boolean;
-  photoURL: string | null;
-  role?: string;
+  photoURL?: string | null;
+  
+  // Roles y permisos
+  role?: 'user' | 'admin' | string;
+  status?: 'active' | 'inactive' | 'suspended';
+  
+  // Metadatos
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  lastLogin?: string | Date;
+  
+  // Preferencias
+  preferences?: {
+    theme?: 'light' | 'dark' | 'system';
+    language?: 'es' | 'en';
+    notifications?: boolean;
+    [key: string]: any;
+  };
+  
+  // Para propiedades adicionales
   [key: string]: any;
 }
 
@@ -53,10 +75,10 @@ export class AuthService implements OnDestroy {
   private tokenExpirationTimer: any;
 
   private readonly afAuth = inject(Auth);
-  private readonly firestore = inject(Firestore);
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
+  private readonly userService = inject(UserService);
 
   constructor() {
     this.initAuthStateListener();
@@ -99,9 +121,10 @@ export class AuthService implements OnDestroy {
 
   // Obtener datos adicionales del usuario desde Firestore
   private getUserData(uid: string): Observable<Partial<UserData>> {
-    const userRef = doc(this.firestore, 'users', uid);
-    return from(getDoc(userRef)).pipe(
-      map(docSnap => docSnap.exists() ? docSnap.data() as Partial<UserData> : {}),
+    if (!uid) return of({});
+    
+    return this.userService.getUser(uid).pipe(
+      map(user => user || {}),
       catchError(error => {
         console.error('Error al obtener datos del usuario:', error);
         return of({});
@@ -134,20 +157,27 @@ export class AuthService implements OnDestroy {
         photoURL: null
       });
 
-      // 3. Crear documento de usuario en Firestore
+      // 3. Crear documento en Firestore usando UserService
       console.log('Creando documento en Firestore...');
+      const now = new Date().toISOString();
       const userData: UserData = {
         uid: userCredential.user.uid,
         email: data.email,
         displayName: data.name,
         emailVerified: false,
         role: data.role || 'user',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+        preferences: {
+          theme: 'light',
+          language: 'es',
+          notifications: true
+        }
       };
 
-      const userDocRef = doc(this.firestore, 'users', userCredential.user.uid);
-      await setDoc(userDocRef, userData);
+      // Usar UserService para crear el usuario
+      await this.userService.createUser(userData);
       
       console.log('Usuario registrado exitosamente:', userCredential.user.uid);
       return userCredential;
