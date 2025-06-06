@@ -47,5 +47,11 @@ export const environment: Environment = {
     level: 2, // Solo errores y advertencias en producción
     console: false, // Deshabilitar logs en consola en producción
     remote: true // Habilitar envío de logs remotos
+  },
+  
+  // Configuración de Google
+  google: {
+    clientId: '884687252315-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com',
+    hostedDomain: 'gesapp-6fe80.firebaseapp.com' // Dominio de Firebase Auth
   }
 };

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Inject } from '@angular/core';
 import { 
   Auth, 
   GoogleAuthProvider, 
@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserService } from './user.service';
 import { UserData } from './auth.service';
+import { DOCUMENT } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -19,13 +20,24 @@ export class GoogleAuthService {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly userService = inject(UserService);
-  private readonly googleProvider = new GoogleAuthProvider();
+  private readonly googleProvider: GoogleAuthProvider;
 
-  constructor() {
+  constructor(
+    @Inject(DOCUMENT) private document: Document,
+    @Inject('GOOGLE_CLIENT_ID') private googleClientId: string
+  ) {
+    // Inicializar el proveedor de Google
+    this.googleProvider = new GoogleAuthProvider();
+    
     // Configurar el proveedor de Google
     this.googleProvider.setCustomParameters({
-      prompt: 'select_account' // Forzar a que siempre pida seleccionar cuenta
+      prompt: 'select_account', // Forzar a que siempre pida seleccionar cuenta
+      hd: '*' // Limitar a dominios específicos si es necesario
     });
+    
+    // Agregar alcances adicionales si es necesario
+    this.googleProvider.addScope('profile');
+    this.googleProvider.addScope('email');
   }
 
   /**
@@ -33,14 +45,30 @@ export class GoogleAuthService {
    */
   async signInWithGoogle(): Promise<FirebaseUser | null> {
     try {
+      // Verificar si estamos en un entorno de navegador
+      if (typeof this.document.defaultView === 'undefined') {
+        throw new Error('No se puede iniciar sesión fuera de un navegador');
+      }
+
+      // Verificar si el proveedor está configurado correctamente
+      if (!this.googleProvider) {
+        throw new Error('Proveedor de Google no configurado correctamente');
+      }
+
+      console.log('Iniciando sesión con Google...');
+      
       const result = await signInWithPopup(this.auth, this.googleProvider);
       const user = result.user;
       
       if (user) {
+        console.log('Usuario autenticado con Google:', user);
+        
         // Verificar si el usuario ya existe en Firestore
         const userDoc = await this.userService.getUser(user.uid).toPromise();
         
         if (!userDoc) {
+          console.log('Creando nuevo usuario en Firestore...');
+          
           // Crear un nuevo usuario en Firestore si no existe
           const userData: Omit<UserData, 'id'> = {
             uid: user.uid,

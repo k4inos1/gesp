@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AuthRoutingModule } from './auth-routing.module';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
+import { GoogleAuthService } from '../../core/services/google-auth.service';
 
 // reCAPTCHA
 import { RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha';
@@ -41,7 +42,12 @@ import { environment } from '../../../environments/environment';
     MatProgressSpinnerModule
   ],
   providers: [
-    { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.recaptcha.siteKey }
+    { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.recaptcha.siteKey },
+    {
+      provide: 'GOOGLE_CLIENT_ID',
+      useValue: environment.google?.clientId || '884687252315-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com'
+    },
+    GoogleAuthService
   ]
 })
 export class AuthModule { }

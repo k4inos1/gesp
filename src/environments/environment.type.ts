@@ -56,6 +56,16 @@ interface FirebaseConfig {
 }
 
 /**
+ * Configuración de Google
+ */
+interface GoogleConfig {
+  /** ID de cliente de Google OAuth */
+  clientId: string;
+  /** (Opcional) Dominios permitidos para inicio de sesión */
+  hostedDomain?: string;
+}
+
+/**
  * Configuración de la aplicación
  */
 export interface Environment {
@@ -84,4 +94,7 @@ export interface Environment {
     /** Habilitar/deshabilitar logs remotos */
     remote: boolean;
   };
+  
+  /** Configuración de Google */
+  google?: GoogleConfig;
 }

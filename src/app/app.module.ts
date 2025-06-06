@@ -130,16 +130,20 @@ initializeFirebaseEmulators().catch(console.error);
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     {
       provide: RECAPTCHA_V3_SITE_KEY,
-      useValue: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' // Clave de prueba de reCAPTCHA v2
+      useValue: '6LdaqFcrAAAAALAyH_t9NOfxd-N7wPB9GwAwCf7e' // Clave de producción de reCAPTCHA
     },
     {
       provide: RECAPTCHA_SETTINGS,
       useValue: {
-        siteKey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+        siteKey: '6LdaqFcrAAAAALAyH_t9NOfxd-N7wPB9GwAwCf7e',
         theme: 'light',
         size: 'normal',
-        type: 'image'  // Asegurarse de que sea del tipo correcto
+        type: 'image'
       } as RecaptchaSettings
+    },
+    {
+      provide: 'GOOGLE_CLIENT_ID',
+      useValue: '884687252315-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com' // Reemplaza con tu Client ID de Google Cloud Console
     },
     provideAnimationsAsync()
   ],
