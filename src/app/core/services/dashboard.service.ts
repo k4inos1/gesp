@@ -1,17 +1,21 @@
-import { Injectable } from '@angular/core';
+
+import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { DashboardStats, SystemHealth, ActivityLog } from '../models/dashboard.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DashboardService {
+@Injectable({
+  providedIn: 'root'
+})
+export class DashboardService implements OnDestroy {
   private apiUrl = `${environment.apiUrl}/dashboard`;
   private statsSubject = new BehaviorSubject<DashboardStats | null>(null);
-  private refreshInterval: any;
+  private refreshInterval: number | null = null;
 
   constructor(private http: HttpClient) {
     this.startAutoRefresh();
@@ -37,15 +41,21 @@ export class DashboardService {
     return this.statsSubject.asObservable();
   }
 
-  private startAutoRefresh(): void {
-    this.refreshInterval = setInterval(() => {
+  private startAutoRefresh(interval: number = 30000): void {
+    this.stopAutoRefresh(); // Detener cualquier intervalo existente
+    this.refreshInterval = window.setInterval(() => {
       this.getStats().subscribe();
-    }, 30000); // Actualizar cada 30 segundos
+    }, interval);
+  }
+
+  stopAutoRefresh(): void {
+    if (this.refreshInterval !== null) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = null;
+    }
   }
 
   ngOnDestroy(): void {
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval);
-    }
+    this.stopAutoRefresh();
   }
 }

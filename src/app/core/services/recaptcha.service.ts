@@ -29,7 +29,8 @@ export class RecaptchaService {
    * @param action Acción esperada
    * @returns Observable con la respuesta de verificación
    */
-  verifyToken(token: string, action: string): Observable<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  verifyToken(_token: string, _action: string): Observable<boolean> {
     // Implementación de ejemplo - deberías reemplazarla con una llamada a tu backend
     // para verificar el token del lado del servidor
     return from(Promise.resolve(true));

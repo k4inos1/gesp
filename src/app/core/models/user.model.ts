@@ -14,6 +14,21 @@ export interface User {
 export type UserRole = 'admin' | 'user' | 'manager';
 export type UserStatus = 'active' | 'inactive' | 'suspended' | 'pending';
 
+export interface DashboardWidget {
+  id: string;
+  type: 'chart' | 'table' | 'stats' | 'activity' | 'custom';
+  title: string;
+  position: {
+    x: number;
+    y: number;
+    cols: number;
+    rows: number;
+  };
+  config?: Record<string, unknown>;
+  isVisible: boolean;
+  refreshRate?: number;
+}
+
 export interface UserPreferences {
   theme: 'light' | 'dark' | 'system';
   language: string;
@@ -22,5 +37,5 @@ export interface UserPreferences {
     push: boolean;
     desktop: boolean;
   };
-  dashboardLayout?: any[];
+  dashboardLayout?: DashboardWidget[];
 }

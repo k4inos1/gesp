@@ -2,7 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { AuthService } from './auth.service';
 import { UserService } from './user.service';
 import { Auth, User, UserCredential, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from '@angular/fire/auth';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 // Mocks
 const mockUser: Partial<User> = {
@@ -10,6 +11,27 @@ const mockUser: Partial<User> = {
   email: 'test@example.com',
   displayName: 'Test User',
   emailVerified: false,
+  photoURL: null,
+  phoneNumber: null,
+  metadata: {},
+  providerData: [],
+  isAnonymous: false,
+  refreshToken: '',
+  tenantId: null,
+  providerId: 'password',
+  delete: () => Promise.resolve(),
+  getIdToken: () => Promise.resolve('mock-token'),
+  getIdTokenResult: () => Promise.resolve({
+    token: 'mock-token',
+    claims: {},
+    expirationTime: new Date(Date.now() + 3600 * 1000).toISOString(),
+    issuedAtTime: new Date().toISOString(),
+    signInProvider: 'password',
+    signInSecondFactor: null,
+    authTime: new Date().toISOString(),
+  }),
+  reload: () => Promise.resolve(),
+  toJSON: () => ({}),
 };
 
 const mockUserCredential: UserCredential = {
@@ -21,11 +43,10 @@ const mockUserCredential: UserCredential = {
 describe('AuthService', () => {
   let service: AuthService;
   let userServiceSpy: jasmine.SpyObj<UserService>;
-  let authSpy: jasmine.SpyObj<Auth>;
 
   beforeEach(() => {
     // Crear spies
-    const userService = jasmine.createSpyObj('UserService', ['createUser', 'getUserData']);
+    const userService = jasmine.createSpyObj('UserService', ['createUser', 'getUser']);
     const auth = jasmine.createSpyObj('Auth', [
       'signOut',
       'onAuthStateChanged',
@@ -51,15 +72,20 @@ describe('AuthService', () => {
     // Inyectar el servicio y los spies
     service = TestBed.inject(AuthService);
     userServiceSpy = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
-    authSpy = TestBed.inject(Auth) as jasmine.SpyObj<Auth>;
 
     // Configurar respuestas por defecto para los spies
     userServiceSpy.createUser.and.returnValue(Promise.resolve());
-    userServiceSpy.getUserData.and.returnValue(of({
+userServiceSpy.getUser = jasmine.createSpy('getUser').and.returnValue(of({
       uid: '123',
       email: 'test@example.com',
       displayName: 'Test User',
-      role: 'user'
+      emailVerified: false,
+      role: 'user',
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
+      preferences: {}
     }));
   });
 
@@ -109,8 +135,14 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('debería iniciar sesión correctamente', async () => {
+      // Configurar
+      const loginData = {
+        email: 'test@example.com',
+        password: '123456'
+      };
+
       // Actuar
-      const result = await service.login('test@example.com', '123456');
+      const result = await service.login(loginData);
 
       // Afirmar
       expect(signInWithEmailAndPassword).toHaveBeenCalledWith(
@@ -127,8 +159,10 @@ describe('AuthService', () => {
       (signInWithEmailAndPassword as jasmine.Spy).and.returnValue(Promise.reject(error));
 
       // Actuar y Afirmar
-      await expectAsync(service.login('test@example.com', 'contraseña-incorrecta'))
-        .toBeRejectedWith(error);
+      await expectAsync(service.login({
+        email: 'test@example.com',
+        password: 'contraseña-incorrecta'
+      })).toBeRejectedWith(error);
     });
   });
 
@@ -151,33 +185,58 @@ describe('AuthService', () => {
     });
   });
 
-  describe('getCurrentUser', () => {
-    it('debería devolver el usuario actual', (done) => {
+  describe('currentUser$', () => {
+    it('debería emitir el usuario actual', (done) => {
       // Configurar
       const userData = {
         uid: '123',
         email: 'test@example.com',
         displayName: 'Test User',
-        role: 'user'
+        emailVerified: false,
+        role: 'user',
+        status: 'active',
+        preferences: {}
       };
 
       // Actuar
-      service.getCurrentUser().subscribe(user => {
+      service.currentUser$.pipe(take(1)).subscribe(user => {
         // Afirmar
-        expect(user).toEqual(userData);
-        done();
+        if (user) {
+          // Verificar solo las propiedades que nos interesan
+          expect(user.uid).toBe(userData.uid);
+          expect(user.email).toBe(userData.email);
+          expect(user.displayName).toBe(userData.displayName);
+          expect(user.role).toBe(userData.role);
+          done();
+        } else {
+          fail('Se esperaba un usuario');
+        }
       });
     });
   });
 
   describe('isAuthenticated', () => {
-    it('debería devolver true si hay un usuario autenticado', (done) => {
+    it('debería devolver true si hay un usuario autenticado', () => {
+      // Configurar
+      const mockCurrentUser = { uid: '123', email: 'test@example.com' };
+      Object.defineProperty(service, 'currentUserValue', { get: () => mockCurrentUser });
+
       // Actuar
-      service.isAuthenticated().subscribe(isAuth => {
-        // Afirmar
-        expect(isAuth).toBeTrue();
-        done();
-      });
+      const result = service.isAuthenticated;
+
+      // Afirmar
+      expect(result).toBeTrue();
+    });
+
+    it('debería devolver false si no hay usuario autenticado', () => {
+      // Configurar
+      Object.defineProperty(service, 'currentUserValue', { get: () => null });
+
+      // Actuar
+      const result = service.isAuthenticated;
+
+      // Afirmar
+      expect(result).toBeFalse();
     });
   });
 });

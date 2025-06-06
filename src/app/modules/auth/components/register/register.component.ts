@@ -1,8 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, takeUntil } from 'rxjs';
+
 import { AuthService } from '../../../../core/services/auth.service';
 import { GoogleAuthService } from '../../../../core/services/google-auth.service';
 import { RecaptchaService } from '../../../../core/services/recaptcha.service';
@@ -19,13 +19,12 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent implements OnInit, OnDestroy {
+export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
   loading = false;
   googleLoading = false;
   hidePassword = true;
   hideConfirmPassword = true;
-  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -55,10 +54,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
       : { mismatch: true };
   }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   async onSubmit(): Promise<void> {
     if (this.registerForm.invalid) {

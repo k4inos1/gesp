@@ -3,8 +3,22 @@
 
 module.exports = function(config) {
   config.set({
+    // Configuración base
     basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
+    
+    // Configuración para manejar el error de zone.js
+    client: {
+      captureConsole: true,
+      jasmine: {
+        random: false,
+        failFast: true,
+        timeoutInterval: 10000
+      },
+      clearContext: false
+    },
+    
+    // Plugins
     plugins: [
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
@@ -12,15 +26,7 @@ module.exports = function(config) {
       require('karma-coverage'),
       require('@angular-devkit/build-angular/plugins/karma')
     ],
-    client: {
-      jasmine: {
-        // Opciones de configuración de Jasmine
-        random: false,
-        failFast: true,
-        timeoutInterval: 10000
-      },
-      clearContext: false // Deja visible el resultado de las pruebas en el navegador
-    },
+
     jasmineHtmlReporter: {
       suppressAll: true // Elimina los mensajes duplicados
     },
@@ -38,13 +44,20 @@ module.exports = function(config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Chrome'],
+    browsers: ['ChromeHeadless'],
     customLaunchers: {
       ChromeHeadlessCI: {
         base: 'ChromeHeadless',
-        flags: ['--no-sandbox', '--disable-gpu']
+        flags: [
+          '--no-sandbox',
+          '--disable-gpu',
+          '--remote-debugging-port=9222',
+          '--window-size=1280,800'
+        ]
       }
     },
+    browserDisconnectTolerance: 3,
+    browserNoActivityTimeout: 60000,
     singleRun: false,
     restartOnFileChange: true,
     // Configuración específica para Angular

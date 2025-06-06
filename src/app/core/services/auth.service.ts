@@ -1,8 +1,7 @@
 import { Injectable, NgZone, OnDestroy, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, from, of, throwError } from 'rxjs';
-import { catchError, map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { 
   Auth, 
@@ -11,15 +10,21 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
-  onAuthStateChanged,
-  sendPasswordResetEmail,
   updateProfile,
-  User,
-  authState,
-  user
-} from '@angular/fire/auth';
-import { Firestore } from '@angular/fire/firestore';
+  sendPasswordResetEmail
+} from '@angular/fire/auth'; 
+
+// Tipo para errores de autenticación
+type FirebaseAuthError = Error & { code?: string; message: string; };
 import { UserService } from './user.service';
+
+// Interfaz para el objeto de preferencias del usuario
+interface UserPreferences {
+  theme?: 'light' | 'dark' | 'system';
+  language?: 'es' | 'en';
+  notifications?: boolean;
+  [key: string]: unknown;
+}
 
 export interface UserData {
   // Identificación
@@ -41,15 +46,10 @@ export interface UserData {
   lastLogin?: string | Date;
   
   // Preferencias
-  preferences?: {
-    theme?: 'light' | 'dark' | 'system';
-    language?: 'es' | 'en';
-    notifications?: boolean;
-    [key: string]: any;
-  };
+  preferences?: UserPreferences;
   
   // Para propiedades adicionales
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface RegisterData {
@@ -72,7 +72,7 @@ export class AuthService implements OnDestroy {
   public currentUser$ = this.currentUserSubject.asObservable();
   private authState: FirebaseUser | null = null;
   private destroy$ = new BehaviorSubject<boolean>(false);
-  private tokenExpirationTimer: any;
+  private tokenExpirationTimer: ReturnType<typeof setTimeout> | null = null;
 
   private readonly afAuth = inject(Auth);
   private readonly http = inject(HttpClient);
@@ -182,28 +182,23 @@ export class AuthService implements OnDestroy {
       console.log('Usuario registrado exitosamente:', userCredential.user.uid);
       return userCredential;
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Error en registro:', error);
       
       // Proporcionar mensajes de error más descriptivos
       let errorMessage = 'Error al registrar el usuario';
       
-      if (error.code) {
-        switch (error.code) {
-          case 'auth/email-already-in-use':
-            errorMessage = 'El correo electrónico ya está en uso';
-            break;
-          case 'auth/invalid-email':
-            errorMessage = 'El correo electrónico no es válido';
-            break;
-          case 'auth/weak-password':
-            errorMessage = 'La contraseña es demasiado débil';
-            break;
-          case 'auth/operation-not-allowed':
-            errorMessage = 'La operación no está permitida';
-            break;
-          default:
-            errorMessage = error.message || errorMessage;
+      if (error instanceof Error) {
+        // Si es un Error estándar, usar su mensaje
+        errorMessage = error.message;
+      } else if (typeof error === 'object' && error !== null) {
+        // Manejar errores de Firebase Auth
+        const firebaseError = error as { code?: string; message?: string };
+        
+        if (firebaseError.code) {
+          errorMessage = this.getFirebaseErrorMessage(firebaseError.code);
+        } else if (firebaseError.message) {
+          errorMessage = firebaseError.message;
         }
       }
       
@@ -311,14 +306,45 @@ export class AuthService implements OnDestroy {
   }
 
   // Manejar errores
-  private handleError(error: any): Observable<never> {
+  /**
+   * Obtiene un mensaje de error legible a partir de un código de error de Firebase
+   */
+  private getFirebaseErrorMessage(code: string): string {
+    const errorMessages: Record<string, string> = {
+      'auth/email-already-in-use': 'El correo electrónico ya está en uso',
+      'auth/invalid-email': 'El correo electrónico no es válido',
+      'auth/weak-password': 'La contraseña es demasiado débil',
+      'auth/user-not-found': 'No existe un usuario con ese correo electrónico',
+      'auth/wrong-password': 'La contraseña es incorrecta',
+      'auth/too-many-requests': 'Demasiados intentos fallidos. Por favor, inténtalo de nuevo más tarde',
+      'auth/network-request-failed': 'Error de conexión. Por favor, verifica tu conexión a internet',
+      'auth/requires-recent-login': 'Esta operación es sensible y requiere autenticación reciente. Inicia sesión nuevamente',
+      'auth/user-disabled': 'Esta cuenta ha sido deshabilitada',
+      'auth/operation-not-allowed': 'Esta operación no está permitida',
+      'auth/account-exists-with-different-credential': 'Ya existe una cuenta con el mismo correo electrónico pero con credenciales diferentes',
+      'auth/credential-already-in-use': 'Estas credenciales ya están en uso por otra cuenta',
+    };
+    
+    return errorMessages[code] || 'Error de autenticación';
+  }
+
+  /**
+   * Maneja errores HTTP y de Firebase
+   */
+  private handleError(error: HttpErrorResponse | FirebaseAuthError): Observable<never> {
     let errorMessage = 'Ha ocurrido un error';
-    if (error.error instanceof ErrorEvent) {
-      errorMessage = error.error.message;
-    } else if (error.error?.message) {
-      errorMessage = error.error.message;
-    } else if (error.code) {
-      // Errores de Firebase
+    
+    if (error instanceof HttpErrorResponse) {
+      // Es un error HTTP
+      if (error.error instanceof ErrorEvent) {
+        // Error del lado del cliente
+        errorMessage = `Error del cliente: ${error.error.message}`;
+      } else {
+        // Error del servidor
+        errorMessage = `Error del servidor: ${error.status} - ${error.statusText || 'Error desconocido'}`;
+      }
+    } else if ('code' in error) {
+      // Es un error de Firebase Auth
       switch (error.code) {
         case 'auth/email-already-in-use':
           errorMessage = 'El correo electrónico ya está en uso';
@@ -330,16 +356,23 @@ export class AuthService implements OnDestroy {
           errorMessage = 'La contraseña es demasiado débil';
           break;
         case 'auth/user-not-found':
+          errorMessage = 'No existe un usuario con ese correo electrónico';
+          break;
         case 'auth/wrong-password':
-          errorMessage = 'Correo o contraseña incorrectos';
+          errorMessage = 'La contraseña es incorrecta';
           break;
         case 'auth/too-many-requests':
-          errorMessage = 'Demasiados intentos. Por favor, inténtalo más tarde';
+          errorMessage = 'Demasiados intentos fallidos. Por favor, inténtalo de nuevo más tarde';
           break;
         default:
-          errorMessage = `Error de autenticación: ${error.code}`;
+          errorMessage = error.message || 'Error de autenticación';
       }
+    } else if (error instanceof Error) {
+      // Error genérico
+      errorMessage = error.message;
     }
+    
+    console.error('Error en AuthService:', error);
     return throwError(() => new Error(errorMessage));
   }
 }

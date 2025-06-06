@@ -4,7 +4,6 @@ import {
   GoogleAuthProvider, 
   signInWithPopup, 
   signOut,
-  UserCredential,
   User as FirebaseUser
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';

@@ -3,7 +3,6 @@ import {
   Firestore, 
   doc, 
   setDoc, 
-  getDoc, 
   updateDoc, 
   deleteDoc, 
   collection, 
@@ -11,12 +10,16 @@ import {
   where, 
   getDocs,
   DocumentData,
-  DocumentReference,
-  DocumentSnapshot
+  docData,
+  collectionData,
+  QuerySnapshot
 } from '@angular/fire/firestore';
 import { UserData } from './auth.service';
-import { Observable, from, of, throwError } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { Observable, of, from } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+
+// Interfaz para extender UserData con el campo uid
+type UserWithUid = UserData & { uid: string };
 
 @Injectable({
   providedIn: 'root'
@@ -33,18 +36,19 @@ export class UserService {
   getUser(userId: string): Observable<UserData | null> {
     if (!userId) return of(null);
     
-    const userDoc = doc(this.firestore, this.usersCollection, userId);
-    return from(getDoc(userDoc)).pipe(
-      map(docSnap => {
-        if (docSnap.exists()) {
-          return { ...docSnap.data(), uid: docSnap.id } as UserData;
-        }
-        return null;
-      }),
-      catchError(error => {
-        console.error('Error al obtener usuario:', error);
-        return throwError(() => new Error('Error al obtener el usuario'));
-      })
+    const userDoc = doc(collection(this.firestore, this.usersCollection), userId);
+    return docData(userDoc, { idField: 'uid' }) as Observable<UserData | null>;
+  }
+
+  /**
+   * Obtener todos los usuarios
+   * @returns Observable con el array de usuarios
+   */
+  getAllUsers(): Observable<UserWithUid[]> {
+    const usersCollection = collection(this.firestore, this.usersCollection);
+    
+    return collectionData(usersCollection, { idField: 'uid' }).pipe(
+      map((users: unknown[]) => users as UserWithUid[])
     );
   }
 
@@ -55,18 +59,15 @@ export class UserService {
    */
   async createUser(userData: Omit<UserData, 'id'>): Promise<void> {
     try {
-      // Usar notación de corchetes para acceder a uid
-      const uid = userData['uid'];
+      const userWithUid = userData as UserWithUid;
+      const { uid, ...userDataWithoutUid } = userWithUid;
+      
       if (!uid) {
         throw new Error('Se requiere un UID para crear un usuario');
       }
       
-      // Crear una copia sin la propiedad uid
-      const userDataCopy = { ...userData };
-      delete userDataCopy['uid'];
-      
       const userRef = doc(this.firestore, this.usersCollection, uid);
-      await setDoc(userRef, userDataCopy);
+      await setDoc(userRef, userDataWithoutUid);
       console.log('Usuario creado exitosamente en Firestore');
     } catch (error) {
       console.error('Error al crear usuario en Firestore:', error);
@@ -121,24 +122,25 @@ export class UserService {
   /**
    * Buscar usuarios por email
    * @param email Email a buscar
-   * @returns Observable con el array de usuarios encontrados
+   * @returns Observable con el usuario encontrado o null si no existe
    */
-  findUserByEmail(email: string): Observable<UserData[]> {
-    if (!email) return of([]);
+  getUserByEmail(email: string): Observable<UserData | null> {
+    if (!email) return of(null);
     
-    const usersRef = collection(this.firestore, this.usersCollection);
-    const q = query(usersRef, where('email', '==', email));
+    const usersCollection = collection(this.firestore, this.usersCollection);
+    const q = query(usersCollection, where('email', '==', email));
     
     return from(getDocs(q)).pipe(
-      map(querySnapshot => {
-        return querySnapshot.docs.map(doc => ({
-          ...doc.data(),
-          uid: doc.id
-        } as UserData));
+      map((querySnapshot: QuerySnapshot<DocumentData>) => {
+        if (!querySnapshot.empty) {
+          const doc = querySnapshot.docs[0];
+          return { ...doc.data(), uid: doc.id } as UserWithUid;
+        }
+        return null;
       }),
-      catchError(error => {
+      catchError((error: Error) => {
         console.error('Error al buscar usuario por email:', error);
-        return of([]);
+        return of(null);
       })
     );
   }

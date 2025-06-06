@@ -1,4 +1,4 @@
-import { NgModule, ErrorHandler, isDevMode } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -40,11 +40,9 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
-// Firebase is now initialized in CoreModule
-
 // Global error handler
 class GlobalErrorHandler implements ErrorHandler {
-  handleError(error: any): void {
+  handleError(error: Error): void {
     console.error('An error occurred:', error);
   }
 }
@@ -55,6 +53,7 @@ const firebaseApp = initializeApp(environment.firebase);
 // Inicializar servicios de Firebase con la instancia de la aplicación
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
 
 // Configuración de emuladores en desarrollo
 if (!environment.production) {
@@ -80,13 +79,7 @@ if (!environment.production) {
   console.log('Modo producción: Usando servicios de Firebase en la nube');
 }
 
-// Configuración de los proveedores de Firebase
-const firebaseProviders = [
-  provideFirebaseApp(() => initializeApp(environment.firebase)),
-  provideAuth(() => getAuth()),
-  provideFirestore(() => getFirestore()),
-  provideStorage(() => getStorage())
-];
+// Configuración de Firebase (se mueve a los providers)
 
 @NgModule({
   declarations: [
@@ -98,9 +91,6 @@ const firebaseProviders = [
     BrowserAnimationsModule,
     HttpClientModule,
     RouterModule,
-    
-    // Módulos de Firebase
-    ...firebaseProviders,
     
     // Módulos de la aplicación
     CoreModule,
@@ -126,6 +116,13 @@ const firebaseProviders = [
     MatSnackBarModule
   ],
   providers: [
+    // Proveedores de Firebase
+    provideFirebaseApp(() => firebaseApp),
+    provideAuth(() => auth),
+    provideFirestore(() => firestore),
+    provideStorage(() => storage),
+    
+    // Otros proveedores
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.recaptcha.siteKey },

@@ -7,13 +7,21 @@
 
     <mat-card-content>
       <!-- Botón de Google -->
-      <div class="google-button-container" (click)="signInWithGoogle()">
-        <button mat-stroked-button color="primary" class="google-button" type="button" [disabled]="googleLoading">
-          <img src="assets/images/google-logo.svg" alt="Google" class="google-logo">
-          <span>Registrarse con Google</span>
-          <mat-spinner *ngIf="googleLoading" diameter="20" class="google-spinner"></mat-spinner>
-        </button>
-      </div>
+      <button 
+        mat-stroked-button 
+        color="primary" 
+        class="google-button" 
+        type="button" 
+        (click)="signInWithGoogle()"
+        (keyup.enter)="signInWithGoogle()"
+        (keyup.space)="signInWithGoogle()"
+        [disabled]="googleLoading"
+        aria-label="Registrarse con Google"
+      >
+        <img src="assets/images/google-logo.svg" alt="" class="google-logo" aria-hidden="true">
+        <span>Registrarse con Google</span>
+        <mat-spinner *ngIf="googleLoading" diameter="20" class="google-spinner"></mat-spinner>
+      </button>
 
       <!-- Separador -->
       <div class="separator">

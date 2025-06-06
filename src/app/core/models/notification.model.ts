@@ -1,3 +1,12 @@
+export interface NotificationMetadata {
+  // Propiedades comunes del metadata
+  actionUrl?: string;
+  source?: string;
+  priority?: 'low' | 'medium' | 'high';
+  // Permite propiedades adicionales con valores primitivos
+  [key: string]: string | number | boolean | undefined;
+}
+
 export interface Notification {
   id: string;
   type: NotificationType;
@@ -6,7 +15,7 @@ export interface Notification {
   timestamp: Date;
   read: boolean;
   userId: string;
-  metadata?: Record<string, any>;
+  metadata?: NotificationMetadata;
 }
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error' | 'system';

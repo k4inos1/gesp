@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
-import { Observable, map, take } from 'rxjs';
-import { Auth, User, user } from '@angular/fire/auth';
+import { Observable, take } from 'rxjs';
+import { Auth, user } from '@angular/fire/auth';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.user$.pipe(
         take(1)
       ).subscribe(user => {
