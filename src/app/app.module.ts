@@ -8,15 +8,13 @@ import { RouterModule } from '@angular/router';
 import { initializeApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { getStorage, connectStorageEmulator, FirebaseStorage } from 'firebase/storage';
 import { environment } from '../environments/environment';
 import { provideFirebaseApp } from '@angular/fire/app';
 import { provideAuth } from '@angular/fire/auth';
 import { provideFirestore } from '@angular/fire/firestore';
-import { provideStorage } from '@angular/fire/storage';
 
 // reCAPTCHA
-import { RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha';
+import { RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recaptcha';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -54,16 +52,7 @@ const firebaseApp = initializeApp(environment.firebase);
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 
-// Inicializar Storage solo si está configurado
-let storage: FirebaseStorage | null = null;
-try {
-  if (environment.firebase.storageBucket) {
-    storage = getStorage(firebaseApp);
-    console.log('✅ Firebase Storage inicializado correctamente');
-  }
-} catch (error) {
-  console.warn('⚠️ No se pudo inicializar Firebase Storage:', error);
-}
+console.log('✅ Firebase inicializado correctamente');
 
 // Función para configurar emuladores de Firebase
 const initializeFirebaseEmulators = async () => {
@@ -81,12 +70,6 @@ const initializeFirebaseEmulators = async () => {
       // Configurar emulador de Firestore
       console.log('Conectando a Firestore emulator en localhost:8080');
       connectFirestoreEmulator(firestore, 'localhost', 8080);
-      
-      // Configurar emulador de Storage
-      if (environment.firebase.storageBucket && storage) {
-        console.log('Conectando a Storage emulator en localhost:9199');
-        connectStorageEmulator(storage, 'localhost', 9199);
-      }
       
       console.log('✅ Firebase emulators conectados correctamente');
     } catch (error) {
@@ -141,12 +124,22 @@ initializeFirebaseEmulators().catch(console.error);
     provideFirebaseApp(() => firebaseApp),
     provideAuth(() => auth),
     provideFirestore(() => firestore),
-    storage ? provideStorage(() => storage as unknown as FirebaseStorage) : [],
     
     // Otros proveedores
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
-    { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.recaptcha.siteKey },
+    {
+      provide: RECAPTCHA_V3_SITE_KEY,
+      useValue: '6LcK3v8SAAAAAABsODqGqZaStZlDz9YwFHUh_mrZ' // Clave de sitio de producción
+    },
+    {
+      provide: RECAPTCHA_SETTINGS,
+      useValue: {
+        siteKey: '6LcK3v8SAAAAAABsODqGqZaStZlDz9YwFHUh_mrZ',
+        theme: 'light',
+        size: 'normal'
+      } as RecaptchaSettings
+    },
     provideAnimationsAsync()
   ],
   bootstrap: [AppComponent]
