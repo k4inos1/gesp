@@ -117,17 +117,17 @@ export class RegisterComponent implements OnInit {
   async signInWithGoogle(): Promise<void> {
     try {
       this.googleLoading = true;
-      const user = await this.googleAuthService.signInWithGoogle();
+      // signInWithGoogle maneja la navegación internamente
+      await this.googleAuthService.signInWithGoogle();
       
-      if (user) {
-        this.snackBar.open('¡Inicio de sesión exitoso con Google!', 'Cerrar', {
-          duration: 5000,
-          horizontalPosition: 'center',
-          verticalPosition: 'bottom',
-          panelClass: ['success-snackbar']
-        });
-        this.router.navigate(['/dashboard']);
-      }
+      // Mostrar mensaje de éxito
+      this.snackBar.open('¡Inicio de sesión exitoso con Google!', 'Cerrar', {
+        duration: 5000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+        panelClass: ['success-snackbar']
+      });
+      // La navegación se maneja dentro del servicio
     } catch (error) {
       console.error('Error al iniciar sesión con Google:', error);
       this.snackBar.open(
