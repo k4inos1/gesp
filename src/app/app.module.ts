@@ -5,14 +5,8 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
 // Firebase
-import { initializeApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
 import { environment } from '../environments/environment';
-import { provideFirebaseApp } from '@angular/fire/app';
-import { provideAuth } from '@angular/fire/auth';
-import { provideFirestore } from '@angular/fire/firestore';
+import { auth, firestore } from './core/firebase/firebase.config';
 
 // reCAPTCHA
 import { RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recaptcha';
@@ -38,6 +32,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { DevModule } from './core/dev/dev.module';
 
 // Global error handler
 class GlobalErrorHandler implements ErrorHandler {
@@ -45,81 +40,6 @@ class GlobalErrorHandler implements ErrorHandler {
     console.error('An error occurred:', error);
   }
 }
-
-// Inicialización de Firebase
-const firebaseApp = initializeApp(environment.firebase);
-
-// Inicializar servicios de Firebase con la instancia de la aplicación
-const auth = getAuth(firebaseApp);
-const firestore = getFirestore(firebaseApp);
-
-// Inicializar servicios de Firebase de forma segura
-const initializeFirebaseServices = (): void => {
-  try {
-    // Inicializar Auth
-    console.log('🔑 Inicializando Firebase Auth...');
-    getAuth(firebaseApp);
-    
-    // Inicializar Firestore
-    console.log('📚 Inicializando Firestore...');
-    getFirestore(firebaseApp);
-    
-    // Inicializar Storage (solo si se va a usar)
-    try {
-      getStorage(firebaseApp);
-      console.log('📦 Firebase Storage inicializado correctamente');
-    } catch (storageError) {
-      console.warn('ℹ️ Firebase Storage no está disponible:', 
-        storageError instanceof Error ? storageError.message : 'Error desconocido');
-    }
-    
-  } catch (error) {
-    console.error('❌ Error al inicializar servicios de Firebase:', 
-      error instanceof Error ? error.message : 'Error desconocido');
-    // No detener la aplicación, continuar sin los servicios de Firebase
-  }
-};
-
-// Inicializar todos los servicios de Firebase
-initializeFirebaseServices();
-
-console.log('✅ Firebase inicializado correctamente');
-
-// Función para configurar emuladores de Firebase
-const initializeFirebaseEmulators = async () => {
-  if (!environment.production) {
-    try {
-      // Solo conectar emuladores si estamos en desarrollo
-      console.log('Configurando emuladores de Firebase...');
-      
-      // Verificar si estamos en el navegador
-      if (typeof window !== 'undefined') {
-        // Configurar emulador de Auth
-        console.log('Conectando a Auth emulator en http://localhost:9099');
-        connectAuthEmulator(auth, 'http://localhost:9099', { 
-          disableWarnings: true 
-        });
-        
-        // Configurar emulador de Firestore
-        console.log('Conectando a Firestore emulator en localhost:8080');
-        connectFirestoreEmulator(firestore, 'localhost', 8080);
-        
-        console.log('✅ Firebase emulators conectados correctamente');
-      } else {
-        console.warn('No se pueden conectar emuladores fuera del navegador');
-      }
-    } catch (error) {
-      console.error('❌ Error al conectar con los emuladores de Firebase:', error);
-    }
-  } else {
-    console.log('Modo producción: Usando servicios de Firebase en la nube');
-  }
-};
-
-// Inicializar emuladores
-initializeFirebaseEmulators().catch(console.error);
-
-// Configuración de Firebase (se mueve a los providers)
 
 @NgModule({
   declarations: [
@@ -131,16 +51,9 @@ initializeFirebaseEmulators().catch(console.error);
     BrowserAnimationsModule,
     HttpClientModule,
     RouterModule,
-    
-    // Módulos de la aplicación
+    AppRoutingModule,
     CoreModule,
     SharedModule,
-    AppRoutingModule,
-    
-    // Módulos de terceros
-    RecaptchaV3Module,
-    
-    // Módulos de Angular Material
     MatToolbarModule,
     MatButtonModule,
     MatSidenavModule,
@@ -153,14 +66,16 @@ initializeFirebaseEmulators().catch(console.error);
     MatExpansionModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    RecaptchaV3Module,
+    // Módulo de desarrollo solo en modo no producción
+    ...(!environment.production ? [DevModule] : [])
   ],
   providers: [
     // Proveedores de Firebase
-    provideFirebaseApp(() => firebaseApp),
-    provideAuth(() => auth),
-    provideFirestore(() => firestore),
-    
+    { provide: 'FIREBASE_OPTIONS', useFactory: () => environment.firebase },
+    { provide: 'FIREBASE_AUTH', useFactory: () => auth },
+    { provide: 'FIREBASE_FIRESTORE', useFactory: () => firestore },
     // Otros proveedores
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
