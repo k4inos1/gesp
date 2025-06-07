@@ -15,13 +15,13 @@ export const environment: Environment = {
   
   // Configuración de Firebase
   firebase: {
-    apiKey: 'demo-gesapp-key', // Clave de demostración para desarrollo
-    authDomain: 'localhost',
-    projectId: 'demo-gesapp',
-    storageBucket: 'demo-gesapp.appspot.com',
-    messagingSenderId: '000000000000',
-    appId: 'demo-gesapp-app-id',
-    measurementId: 'G-XXXXXXXXXX',
+    apiKey: 'AIzaSyAFCuTOFG2KYJICD2xNGTSj857FmZgtihI',
+    authDomain: 'gesapp-6fe80.firebaseapp.com',
+    projectId: 'gesapp-6fe80',
+    storageBucket: 'gesapp-6fe80.firebasestorage.app',
+    messagingSenderId: '884687252315',
+    appId: '1:884687252315:web:fe17c98f8d5ff9364c487e',
+    measurementId: 'G-MMNRM12MH9',
     // Configuración de emuladores
     emulators: {
       auth: 'http://localhost:9099',

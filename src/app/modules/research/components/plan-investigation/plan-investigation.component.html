@@ -90,6 +90,11 @@
                   completed: isTaskCompleted(phase.id + '-' + taskIndex)
                 }"
                 (click)="toggleTask(phase.id + '-' + taskIndex)"
+                (keydown.enter)="onKeyup($event, phase.id + '-' + taskIndex)"
+                [attr.data-task-id]="phase.id + '-' + taskIndex"
+                tabindex="0"
+                role="button"
+                aria-label="Marcar tarea como completada"
               >
                 <mat-icon
                   *ngIf="isTaskCompleted(phase.id + '-' + taskIndex)"

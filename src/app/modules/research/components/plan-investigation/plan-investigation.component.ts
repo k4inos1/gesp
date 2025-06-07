@@ -127,6 +127,20 @@ export class PlanInvestigationComponent implements OnInit {
     this.completedTasks[taskId] = !this.completedTasks[taskId];
   }
 
+  /**
+   * Maneja el evento de tecla Enter para marcar tareas como completadas
+   * @param event - Evento de teclado
+   * @param taskId - ID de la tarea a la que se aplica la acción
+   */
+  public onKeyup(event: Event, taskId: string): void {
+    // Prevenir el comportamiento por defecto
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Ejecutar la acción de toggle
+    this.toggleTask(taskId);
+  }
+
   isTaskCompleted(taskId: string): boolean {
     return this.completedTasks[taskId] || false;
   }

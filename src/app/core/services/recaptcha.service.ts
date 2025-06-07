@@ -1,13 +1,30 @@
 import { Injectable } from '@angular/core';
 import { ReCaptchaV3Service } from 'ng-recaptcha';
-import { Observable, from } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+
+interface RecaptchaVerificationResponse {
+  success: boolean;
+  score?: number;
+  action?: string;
+  challenge_ts?: string;
+  hostname?: string;
+  'error-codes'?: string[];
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecaptchaService {
-  constructor(private recaptchaV3Service: ReCaptchaV3Service) {}
+  private readonly RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/v3/siteverify';
+  private readonly MINIMUM_SCORE = 0.5; // Puntuación mínima aceptable (0.0 a 1.0)
+
+  constructor(
+    private http: HttpClient,
+    private recaptchaV3Service: ReCaptchaV3Service
+  ) {}
 
   /**
    * Ejecuta la verificación de reCAPTCHA v3
@@ -15,10 +32,15 @@ export class RecaptchaService {
    * @returns Observable con el token de verificación
    */
   execute(action: string): Observable<string> {
+    // En desarrollo, devolver un token simulado
+    if (environment.production === false) {
+      return of('dev-recaptcha-dummy-token');
+    }
+    
     return this.recaptchaV3Service.execute(action).pipe(
-      switchMap(token => {
-        // Aquí podrías validar el token en tu backend si es necesario
-        return from(Promise.resolve(token));
+      catchError(error => {
+        console.error('Error al ejecutar reCAPTCHA:', error);
+        throw new Error('Error de verificación de seguridad');
       })
     );
   }
@@ -29,10 +51,46 @@ export class RecaptchaService {
    * @param action Acción esperada
    * @returns Observable con la respuesta de verificación
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  verifyToken(_token: string, _action: string): Observable<boolean> {
-    // Implementación de ejemplo - deberías reemplazarla con una llamada a tu backend
-    // para verificar el token del lado del servidor
-    return from(Promise.resolve(true));
+  verifyToken(token: string, expectedAction: string): Observable<boolean> {
+    // En desarrollo, siempre retornar verdadero
+    if (environment.production === false) {
+      return of(true);
+    }
+
+    // En producción, verificar con el backend
+    return this.http.post<RecaptchaVerificationResponse>(
+      `${environment.apiUrl}/auth/verify-recaptcha`,
+      { token, action: expectedAction },
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      }
+    ).pipe(
+      map(response => {
+        if (!response.success) {
+          console.warn('reCAPTCHA verification failed:', response['error-codes']);
+          return false;
+        }
+
+        // Verificar que la acción coincida
+        if (response.action !== expectedAction) {
+          console.warn(`reCAPTCHA action mismatch: expected ${expectedAction}, got ${response.action}`);
+          return false;
+        }
+
+        // Verificar puntuación mínima
+        if (response.score && response.score < this.MINIMUM_SCORE) {
+          console.warn(`reCAPTCHA score too low: ${response.score} < ${this.MINIMUM_SCORE}`);
+          return false;
+        }
+
+        return true;
+      }),
+      catchError(error => {
+        console.error('Error al verificar reCAPTCHA:', error);
+        return of(false);
+      })
+    );
   }
 }
