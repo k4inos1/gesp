@@ -1,32 +1,33 @@
-version: '3.8'
+version: "3.8"
 
 services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
   backend:
     build: ./backend
     ports:
       - "3000:3000"
-    depends_on:
-      - db
     environment:
+      - NODE_ENV=production
       - DB_HOST=db
       - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASS=postgres
-      - DB_NAME=myapp
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "4200:80"
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
     depends_on:
-      - backend
+      - db
 
   db:
     image: postgres:14-alpine
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=myapp
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
