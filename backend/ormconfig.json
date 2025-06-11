@@ -1,10 +1,10 @@
 {
   "type": "postgres",
-  "host": "${DB_HOST}",
-  "port": ${DB_PORT},
-  "username": "${DB_USERNAME}",
-  "password": "${DB_PASSWORD}",
-  "database": "${DB_DATABASE}",
-  "entities": ["dist/**/*.entity{.ts,.js}"],
+  "host": "localhost",
+  "port": 5432,
+  "username": "postgres",
+  "password": "admin",
+  "database": "gesapp",
+  "entities": ["dist/**/*.entity{.ts,.js}", "dist/**/entities/*.js"],
   "synchronize": true
 }
