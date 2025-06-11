@@ -11,10 +11,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
+const class_transformer_1 = require("class-transformer");
 let User = class User {
+    id;
+    email;
+    password;
+    name;
+    createdAt;
 };
+exports.User = User;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)('uuid'),
+    (0, typeorm_1.PrimaryGeneratedColumn)("uuid"),
     __metadata("design:type", String)
 ], User.prototype, "id", void 0);
 __decorate([
@@ -23,22 +30,18 @@ __decorate([
 ], User.prototype, "email", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
+    (0, class_transformer_1.Exclude)(),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: 'full_name' }),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], User.prototype, "fullName", void 0);
+], User.prototype, "name", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ name: 'created_at' }),
+    (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], User.prototype, "createdAt", void 0);
-__decorate([
-    (0, typeorm_1.UpdateDateColumn)({ name: 'updated_at' }),
-    __metadata("design:type", Date)
-], User.prototype, "updatedAt", void 0);
-User = __decorate([
-    (0, typeorm_1.Entity)('users')
+exports.User = User = __decorate([
+    (0, typeorm_1.Entity)("users")
 ], User);
-exports.User = User;
 //# sourceMappingURL=user.entity.js.map

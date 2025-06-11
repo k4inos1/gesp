@@ -17,7 +17,8 @@ const auth_module_1 = require("./src/modules/auth/auth.module");
 const users_module_1 = require("./src/modules/users/users.module");
 let AppModule = class AppModule {
 };
-AppModule = __decorate([
+exports.AppModule = AppModule;
+exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot(),
@@ -42,5 +43,4 @@ AppModule = __decorate([
         providers: [app_service_1.AppService],
     })
 ], AppModule);
-exports.AppModule = AppModule;
 //# sourceMappingURL=app.module.js.map

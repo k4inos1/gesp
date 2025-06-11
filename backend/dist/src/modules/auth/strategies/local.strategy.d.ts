@@ -1,11 +1,13 @@
-import { Strategy } from 'passport-local';
 import { AuthService } from '../auth.service';
-declare const LocalStrategy_base: new (...args: unknown[] | [] | [options: import("passport-local").IStrategyOptionsWithRequest] | [options: import("passport-local").IStrategyOptions]) => Strategy & {
-    validate(...args: any[]): unknown;
-};
+declare const LocalStrategy_base: new (...args: any) => any;
 export declare class LocalStrategy extends LocalStrategy_base {
     private authService;
     constructor(authService: AuthService);
-    validate(email: string, password: string): Promise<Omit<import("../../users/entities/user.entity").User, "password">>;
+    validate(email: string, password: string): Promise<{
+        name: string;
+        id: string;
+        email: string;
+        createdAt: Date;
+    }>;
 }
 export {};

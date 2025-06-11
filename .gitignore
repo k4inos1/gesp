@@ -1,8 +1,9 @@
 # Dependencias
 node_modules/
 
-# Archivos de compilación
-/dist
+# Archivos de compilación como dist
+dist/
+.vscode/
 /tmp
 /out-tsc
 /bazel-out

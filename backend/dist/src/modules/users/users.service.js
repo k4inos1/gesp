@@ -17,22 +17,47 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./entities/user.entity");
+const bcrypt = require("bcrypt");
 let UsersService = class UsersService {
+    usersRepository;
     constructor(usersRepository) {
         this.usersRepository = usersRepository;
     }
-    async findOne(email) {
-        return this.usersRepository.findOne({ where: { email } });
-    }
     async create(createUserDto) {
-        const user = this.usersRepository.create(createUserDto);
+        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+        const user = this.usersRepository.create({
+            ...createUserDto,
+            password: hashedPassword,
+        });
         return this.usersRepository.save(user);
     }
+    async findOne(email) {
+        return await this.usersRepository.findOne({ where: { email } });
+    }
+    async findById(id) {
+        const user = await this.usersRepository.findOne({ where: { id } });
+        if (!user) {
+            throw new common_1.NotFoundException(`User with id ${id} not found`);
+        }
+        return user;
+    }
+    async update(id, updateUserDto) {
+        const user = await this.findById(id);
+        if (updateUserDto.password) {
+            updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+        }
+        Object.assign(user, updateUserDto);
+        return this.usersRepository.save(user);
+    }
+    async remove(id) {
+        const user = await this.findById(id);
+        await this.usersRepository.remove(user);
+    }
 };
-UsersService = __decorate([
+exports.UsersService = UsersService;
+exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [typeorm_2.Repository])
 ], UsersService);
-exports.UsersService = UsersService;
 //# sourceMappingURL=users.service.js.map
