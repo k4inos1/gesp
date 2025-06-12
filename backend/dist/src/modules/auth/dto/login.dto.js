@@ -13,10 +13,7 @@ exports.LoginDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class LoginDto {
-    email;
-    password;
 }
-exports.LoginDto = LoginDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'usuario@ejemplo.com' }),
     (0, class_validator_1.IsEmail)(),
@@ -29,4 +26,5 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], LoginDto.prototype, "password", void 0);
+exports.LoginDto = LoginDto;
 //# sourceMappingURL=login.dto.js.map

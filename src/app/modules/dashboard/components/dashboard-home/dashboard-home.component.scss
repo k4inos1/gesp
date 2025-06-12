@@ -1,0 +1,81 @@
+.dashboard-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+
+    .stat-card {
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #1976d2;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .stat-secondary {
+        color: #4caf50;
+        font-size: 0.9rem;
+        margin-top: 5px;
+      }
+    }
+  }
+
+  .system-health {
+    .health-grid {
+      display: grid;
+      gap: 20px;
+      padding: 10px;
+
+      .health-item {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .health-label {
+          font-weight: 500;
+          color: #666;
+        }
+
+        .health-value {
+          text-align: right;
+          font-size: 0.9rem;
+          color: #333;
+        }
+      }
+    }
+  }
+
+  .recent-activity {
+    mat-list-item {
+      margin-bottom: 8px;
+
+      .mat-icon {
+        &.user { color: #1976d2; }
+        &.project { color: #4caf50; }
+        &.system { color: #ff9800; }
+      }
+
+      [matListItemTitle] {
+        font-weight: 500;
+      }
+
+      [matListItemLine] {
+        color: #666;
+      }
+
+      [matListItemMeta] {
+        color: #999;
+        font-size: 0.8rem;
+      }
+    }
+  }
+}

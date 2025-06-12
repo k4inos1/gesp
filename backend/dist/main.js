@@ -7,20 +7,20 @@ const app_module_1 = require("./app.module");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors();
-    app.setGlobalPrefix("api");
+    app.setGlobalPrefix('api');
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         forbidNonWhitelisted: true,
         transform: true,
     }));
     const config = new swagger_1.DocumentBuilder()
-        .setTitle("GesApp API")
-        .setDescription("API para GesApp")
-        .setVersion("1.0")
+        .setTitle('GesApp API')
+        .setDescription('API para GesApp')
+        .setVersion('1.0')
         .addBearerAuth()
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
-    swagger_1.SwaggerModule.setup("api", app, document);
+    swagger_1.SwaggerModule.setup('api', app, document);
     await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

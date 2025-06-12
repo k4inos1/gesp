@@ -1,0 +1,280 @@
+<div class="plan-container">
+  <div class="plan-header">
+    <div class="header-content">
+      <h1>Plan de Investigación de Mercado</h1>
+      <p>Espacios Maker INACAP con Enfoque PMV</p>
+    </div>
+  </div>
+
+  <div class="tabs-container">
+    <mat-tab-group
+      [selectedIndex]="selectedIndex"
+      (selectedIndexChange)="setActiveTab(tabs[$event].id)"
+      animationDuration="0ms"
+    >
+      <mat-tab *ngFor="let tab of tabs">
+        <ng-template mat-tab-label>
+          <div class="tab-label">
+            <mat-icon>{{ tab.icon }}</mat-icon>
+            <span>{{ tab.label }}</span>
+          </div>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <div class="content-container">
+    <!-- Visión General -->
+    <div *ngIf="activeTab === 'overview'" class="tab-content">
+      <div class="overview-section">
+        <h3>
+          <mat-icon>target</mat-icon>
+          Objetivo Principal
+        </h3>
+        <p>
+          Validar la viabilidad de implementar espacios maker en INACAP con
+          enfoque PMV, donde estudiantes desarrollen prototipos funcionales para
+          PYMEs reales, integrando el modelo exitoso de DigitalizaPyme.
+        </p>
+
+        <div class="features-grid">
+          <mat-card>
+            <mat-card-content>
+              <mat-icon color="primary">people</mat-icon>
+              <h4>Usuarios Objetivo</h4>
+              <p>Estudiantes INACAP, PYMEs locales, docentes</p>
+            </mat-card-content>
+          </mat-card>
+          <mat-card>
+            <mat-card-content>
+              <mat-icon color="accent">rocket_launch</mat-icon>
+              <h4>Enfoque PMV</h4>
+              <p>Prototipos funcionales con validación real</p>
+            </mat-card-content>
+          </mat-card>
+          <mat-card>
+            <mat-card-content>
+              <mat-icon color="warn">trending_up</mat-icon>
+              <h4>Escalabilidad</h4>
+              <p>Modelo replicable en otras sedes</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fases y Cronograma -->
+    <div *ngIf="activeTab === 'phases'" class="tab-content">
+      <div class="phases-header">
+        <h3>Cronograma de Investigación</h3>
+        <p>Duración total estimada: 11-14 semanas</p>
+      </div>
+
+      <div class="phases-list">
+        <mat-card
+          *ngFor="let phase of phases; let i = index"
+          class="phase-card"
+        >
+          <mat-card-header [ngClass]="getBackgroundClass(phase.color)">
+            <mat-card-title>Fase {{ i + 1 }}: {{ phase.title }}</mat-card-title>
+            <mat-card-subtitle class="phase-duration">{{
+              phase.duration
+            }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="tasks-list">
+              <div
+                *ngFor="let task of phase.tasks; let taskIndex = index"
+                class="task-item"
+                [ngClass]="{
+                  completed: isTaskCompleted(phase.id + '-' + taskIndex)
+                }"
+                (click)="toggleTask(phase.id + '-' + taskIndex)"
+                (keydown.enter)="onKeyup($event, phase.id + '-' + taskIndex)"
+                [attr.data-task-id]="phase.id + '-' + taskIndex"
+                tabindex="0"
+                role="button"
+                aria-label="Marcar tarea como completada"
+              >
+                <mat-icon
+                  *ngIf="isTaskCompleted(phase.id + '-' + taskIndex)"
+                  color="accent"
+                  >check_circle</mat-icon
+                >
+                <mat-icon *ngIf="!isTaskCompleted(phase.id + '-' + taskIndex)"
+                  >radio_button_unchecked</mat-icon
+                >
+                <span>{{ task }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Metodologías -->
+    <div *ngIf="activeTab === 'methodology'" class="tab-content">
+      <h3>
+        <mat-icon>settings</mat-icon>
+        Metodologías de Investigación
+      </h3>
+
+      <div class="metodologias-list">
+        <mat-card *ngFor="let metodologia of metodologias">
+          <mat-card-header>
+            <mat-card-title>{{ metodologia.tipo }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="objetivo">{{ metodologia.objetivo }}</p>
+            <div class="herramientas-section">
+              <h4>Herramientas:</h4>
+              <mat-chip-set>
+                <mat-chip *ngFor="let herramienta of metodologia.herramientas">
+                  {{ herramienta }}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Indicadores -->
+    <div *ngIf="activeTab === 'indicators'" class="tab-content">
+      <h3>
+        <mat-icon>bar_chart</mat-icon>
+        Indicadores de Éxito
+      </h3>
+
+      <div class="indicadores-list">
+        <mat-card *ngFor="let indicador of indicadores">
+          <mat-card-header>
+            <mat-card-title>{{ indicador.categoria }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="metricas-grid">
+              <div
+                *ngFor="let metrica of indicador.metricas"
+                class="metrica-item"
+              >
+                <span>{{ metrica }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <mat-card class="meta-card">
+        <mat-card-header>
+          <mat-card-title>Meta de Validación PMV</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>
+            <strong>Objetivo:</strong> Lograr que al menos 3 prototipos maker
+            sean implementados exitosamente en PYMEs reales durante el piloto,
+            con una satisfacción ≥ 4.0/5.0.
+          </p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Integración PMV -->
+    <div *ngIf="activeTab === 'pmv'" class="tab-content">
+      <h3>
+        <mat-icon>lightbulb</mat-icon>
+        Integración Modelo PMV + DigitalizaPyme
+      </h3>
+
+      <div class="pmv-grid">
+        <mat-card class="pmv-card digitalizapyme">
+          <mat-card-header>
+            <mat-card-title>Del Modelo DigitalizaPyme</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <ul>
+              <li>PMV funcional validado con usuario real</li>
+              <li>Testeo en terreno con retroalimentación</li>
+              <li>Métricas de impacto medibles</li>
+              <li>Enfoque territorial y local</li>
+              <li>Modelo modular y escalable</li>
+            </ul>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="pmv-card espacios-maker">
+          <mat-card-header>
+            <mat-card-title>Aplicado a Espacios Maker</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <ul>
+              <li>Prototipos IoT/automatización funcionales</li>
+              <li>Instalación y prueba en PYMEs reales</li>
+              <li>Medición de mejoras operacionales</li>
+              <li>Conexión con desafíos locales</li>
+              <li>Replicación en múltiples sedes INACAP</li>
+            </ul>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <mat-card class="preguntas-card">
+        <mat-card-header>
+          <mat-card-title>Preguntas Clave de Investigación</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="preguntas-list">
+            <div class="pregunta-item">
+              <p>
+                ¿Qué tipos de prototipos maker tienen mayor demanda en PYMEs
+                locales?
+              </p>
+            </div>
+            <div class="pregunta-item">
+              <p>
+                ¿Cómo adaptar el ciclo PMV de 2 semanas al contexto educativo
+                semestral?
+              </p>
+            </div>
+            <div class="pregunta-item">
+              <p>
+                ¿Qué nivel de acompañamiento necesitan las PYMEs para adoptar
+                prototipos estudiantiles?
+              </p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div class="next-steps">
+    <h3>
+      <mat-icon>description</mat-icon>
+      Próximos Pasos Inmediatos
+    </h3>
+    <div class="steps-grid">
+      <mat-card class="step-card step-1">
+        <mat-card-content>
+          <h4>Semana 1-2</h4>
+          <p>
+            Iniciar mapeo de PYMEs locales y contacto con stakeholders clave
+          </p>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="step-card step-2">
+        <mat-card-content>
+          <h4>Semana 3-4</h4>
+          <p>
+            Desarrollar encuestas y planificar entrevistas con docentes INACAP
+          </p>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="step-card step-3">
+        <mat-card-content>
+          <h4>Mes 2</h4>
+          <p>Ejecutar primer PMV piloto con un equipo de estudiantes</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

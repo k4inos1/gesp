@@ -1,0 +1,214 @@
+.iot-sensors-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header-section {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.main-title {
+  font-size: 2.5rem;
+  color: #3f51b5;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+section {
+  margin-bottom: 60px;
+}
+
+h2 {
+  font-size: 1.8rem;
+  color: #3f51b5;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.section-intro {
+  max-width: 800px;
+  margin: 0 auto 30px;
+  text-align: center;
+  color: #666;
+}
+
+// Estilos para la sección de tipos de sensores
+.sensor-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.sensor-card {
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sensor-icon {
+    background-color: #e8eaf6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    mat-icon {
+      color: #3f51b5;
+      font-size: 24px;
+    }
+  }
+  
+  mat-list-item {
+    height: auto !important;
+    margin-bottom: 8px;
+  }
+}
+
+// Estilos para la sección de proyectos destacados
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 30px;
+}
+
+.project-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  img {
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  mat-card-content {
+    flex-grow: 1;
+  }
+  
+  .difficulty-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    
+    &.básico {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+    
+    &.intermedio {
+      background-color: #fff8e1;
+      color: #ff8f00;
+    }
+    
+    &.avanzado {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+  }
+  
+  .project-details-panel {
+    margin-top: 15px;
+    
+    .project-details {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      
+      h4 {
+        margin-bottom: 10px;
+        color: #555;
+      }
+    }
+  }
+  
+  mat-chip-listbox {
+    margin-bottom: 10px;
+  }
+  
+  mat-card-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 16px 16px;
+  }
+}
+
+// Estilos para la ruta de aprendizaje
+.learning-stepper {
+  max-width: 800px;
+  margin: 0 auto;
+  
+  .step-content {
+    padding: 20px 0;
+    
+    h3 {
+      color: #3f51b5;
+      margin-bottom: 15px;
+    }
+    
+    .step-actions {
+      margin-top: 20px;
+    }
+  }
+}
+
+// Estilos para la sección de recursos
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.resource-card {
+  height: 100%;
+  
+  mat-icon {
+    color: #3f51b5;
+    background-color: #e8eaf6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  mat-card-content {
+    min-height: 100px;
+  }
+  
+  mat-card-actions {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+// Media queries para responsividad
+@media (max-width: 768px) {
+  .main-title {
+    font-size: 2rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
+  .sensor-types-grid, 
+  .projects-grid, 
+  .resources-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .project-card img {
+    height: 180px;
+  }
+}

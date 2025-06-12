@@ -1,0 +1,45 @@
+<footer class="printing3d-footer">
+  <div class="footer-container">
+    <div class="footer-section about">
+      <h3>Impresión 3D en Educación</h3>
+      <p>
+        Recursos, tutoriales y herramientas para integrar la tecnología de
+        impresión 3D en entornos educativos.
+      </p>
+      <div class="social-links">
+        <a
+          *ngFor="let social of socialLinks"
+          [href]="social.url"
+          target="_blank"
+          class="social-link"
+        >
+          <mat-icon>{{ social.icon }}</mat-icon>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-section links">
+      <h3>Enlaces Rápidos</h3>
+      <ul>
+        <li *ngFor="let link of quickLinks">
+          <a [routerLink]="link.url">{{ link.name }}</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="footer-section contact">
+      <h3>Contacto</h3>
+      <p><mat-icon>email</mat-icon> info&#64;maker-iot.edu</p>
+      <p><mat-icon>phone</mat-icon> +34 91 123 45 67</p>
+      <p><mat-icon>location_on</mat-icon> Calle Principal 123, Madrid</p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; {{ currentYear }} Maker IoT - Todos los derechos reservados</p>
+    <p>
+      Desarrollado con <mat-icon class="heart-icon">favorite</mat-icon> por el
+      equipo de Maker IoT
+    </p>
+  </div>
+</footer>

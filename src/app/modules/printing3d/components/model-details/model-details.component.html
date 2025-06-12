@@ -1,0 +1,256 @@
+<div class="model-details-container">
+  <div class="back-button">
+    <button mat-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon> Volver a modelos
+    </button>
+  </div>
+
+  <div class="model-header">
+    <div class="model-header-content">
+      <h1>{{model.name}}</h1>
+      <div class="model-meta">
+        <span class="designer">
+          <mat-icon>person</mat-icon> Diseñado por {{model.designer}}
+        </span>
+        <span class="category">
+          <mat-icon>category</mat-icon> {{model.category}}
+        </span>
+        <span class="date">
+          <mat-icon>calendar_today</mat-icon> {{model.dateAdded}}
+        </span>
+      </div>
+      <div class="model-rating">
+        <span class="rating-value">{{model.rating}}</span>
+        <div class="rating-stars">
+          <mat-icon *ngFor="let star of [1,2,3,4,5]" 
+                   [class.filled]="star <= model.rating"
+                   [class.half-filled]="star - 0.5 <= model.rating && star > model.rating">
+            star
+          </mat-icon>
+        </div>
+        <span class="downloads">
+          <mat-icon>cloud_download</mat-icon> {{model.downloads}} descargas
+        </span>
+      </div>
+    </div>
+    <div class="model-actions">
+      <button mat-raised-button color="primary" (click)="downloadFile(model.files[0])">
+        <mat-icon>cloud_download</mat-icon> Descargar STL
+      </button>
+      <button mat-button (click)="shareModel()">
+        <mat-icon>share</mat-icon> Compartir
+      </button>
+      <button mat-button (click)="reportIssue()">
+        <mat-icon>flag</mat-icon> Reportar
+      </button>
+    </div>
+  </div>
+
+  <div class="model-content">
+    <div class="model-gallery">
+      <div class="main-image">
+        <img [src]="model.images[0]" alt="{{model.name}}">
+      </div>
+      <div class="thumbnail-gallery">
+        <div class="thumbnail" *ngFor="let image of model.images; let i = index">
+          <img [src]="image" alt="{{model.name}} - Imagen {{i+1}}">
+        </div>
+      </div>
+    </div>
+
+    <mat-tab-group [(selectedIndex)]="selectedTab" animationDuration="0ms">
+      <mat-tab label="Descripción">
+        <div class="tab-content">
+          <p class="description">{{model.description}}</p>
+          
+          <div class="features-section">
+            <h3>Características</h3>
+            <div class="features-grid">
+              <div class="feature-item">
+                <mat-icon>timer</mat-icon>
+                <div class="feature-text">
+                  <span class="feature-label">Tiempo de impresión</span>
+                  <span class="feature-value">{{model.printTime}}</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <mat-icon>build</mat-icon>
+                <div class="feature-text">
+                  <span class="feature-label">Dificultad</span>
+                  <span class="feature-value">{{model.difficulty}}</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <mat-icon>category</mat-icon>
+                <div class="feature-text">
+                  <span class="feature-label">Material</span>
+                  <span class="feature-value">{{model.material}}</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <mat-icon>extension</mat-icon>
+                <div class="feature-text">
+                  <span class="feature-label">Número de piezas</span>
+                  <span class="feature-value">{{model.partsCount}}</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <mat-icon>access_time</mat-icon>
+                <div class="feature-text">
+                  <span class="feature-label">Tiempo de ensamblaje</span>
+                  <span class="feature-value">{{model.assemblyTime}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="tags-section">
+            <h3>Etiquetas</h3>
+            <mat-chip-set>
+              <mat-chip *ngFor="let feature of model.features">{{feature}}</mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+      </mat-tab>
+      
+      <mat-tab label="Instrucciones">
+        <div class="tab-content">
+          <h3>Instrucciones de impresión y ensamblaje</h3>
+          
+          <mat-vertical-stepper linear="false">
+            <mat-step *ngFor="let step of model.instructions">
+              <ng-template matStepLabel>{{step.title}}</ng-template>
+              <div class="step-content">
+                <div class="step-image">
+                  <img [src]="step.image" alt="Paso {{step.step}}: {{step.title}}">
+                </div>
+                <div class="step-description">
+                  <p>{{step.description}}</p>
+                </div>
+              </div>
+            </mat-step>
+          </mat-vertical-stepper>
+        </div>
+      </mat-tab>
+      
+      <mat-tab label="Configuración de impresión">
+        <div class="tab-content">
+          <h3>Configuración recomendada de impresión</h3>
+          
+          <div class="print-settings">
+            <div class="setting-item">
+              <mat-icon>whatshot</mat-icon>
+              <div class="setting-text">
+                <span class="setting-label">Temperatura de boquilla</span>
+                <span class="setting-value">{{model.printSettings.nozzleTemp}}</span>
+              </div>
+            </div>
+            <div class="setting-item">
+              <mat-icon>grid_on</mat-icon>
+              <div class="setting-text">
+                <span class="setting-label">Temperatura de cama</span>
+                <span class="setting-value">{{model.printSettings.bedTemp}}</span>
+              </div>
+            </div>
+            <div class="setting-item">
+              <mat-icon>layers</mat-icon>
+              <div class="setting-text">
+                <span class="setting-label">Altura de capa</span>
+                <span class="setting-value">{{model.printSettings.layerHeight}}</span>
+              </div>
+            </div>
+            <div class="setting-item">
+              <mat-icon>texture</mat-icon>
+              <div class="setting-text">
+                <span class="setting-label">Relleno</span>
+                <span class="setting-value">{{model.printSettings.infill}}</span>
+              </div>
+            </div>
+            <div class="setting-item">
+              <mat-icon>architecture</mat-icon>
+              <div class="setting-text">
+                <span class="setting-label">Soportes</span>
+                <span class="setting-value">{{model.printSettings.supports}}</span>
+              </div>
+            </div>
+            <div class="setting-item">
+              <mat-icon>border_outer</mat-icon>
+              <div class="setting-text">
+                <span class="setting-label">Adhesión a la plataforma</span>
+                <span class="setting-value">{{model.printSettings.adhesion}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+      
+      <mat-tab label="Archivos">
+        <div class="tab-content">
+          <h3>Archivos disponibles</h3>
+          
+          <div class="files-list">
+            <mat-card *ngFor="let file of model.files" class="file-item">
+              <mat-card-content>
+                <div class="file-info">
+                  <mat-icon>insert_drive_file</mat-icon>
+                  <div class="file-details">
+                    <span class="file-name">{{file.name}}</span>
+                    <span class="file-meta">{{file.format}} | {{file.size}}</span>
+                  </div>
+                </div>
+                <button mat-icon-button color="primary" (click)="downloadFile(file)">
+                  <mat-icon>cloud_download</mat-icon>
+                </button>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+      
+      <mat-tab label="Comentarios">
+        <div class="tab-content">
+          <h3>Comentarios de la comunidad</h3>
+          
+          <div class="comments-section">
+            <div class="comments-list">
+              <mat-card *ngFor="let comment of model.comments" class="comment-item">
+                <mat-card-content>
+                  <div class="comment-header">
+                    <span class="comment-user">{{comment.user}}</span>
+                    <span class="comment-date">{{comment.date}}</span>
+                    <div class="comment-rating">
+                      <mat-icon *ngFor="let star of [1,2,3,4,5]" 
+                               [class.filled]="star <= comment.rating">
+                        star
+                      </mat-icon>
+                    </div>
+                  </div>
+                  <div class="comment-content">
+                    <p>{{comment.comment}}</p>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+            
+            <div class="add-comment">
+              <h4>Añadir comentario</h4>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Tu comentario</mat-label>
+                <textarea matInput rows="4" placeholder="Comparte tu experiencia con este modelo..."></textarea>
+              </mat-form-field>
+              
+              <div class="rating-input">
+                <span>Tu valoración:</span>
+                <mat-icon *ngFor="let star of [1,2,3,4,5]">star_border</mat-icon>
+              </div>
+              
+              <button mat-raised-button color="primary" (click)="addComment()">
+                Enviar comentario
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

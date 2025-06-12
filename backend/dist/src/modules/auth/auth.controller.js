@@ -14,40 +14,49 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const auth_service_1 = require("./auth.service");
+const local_auth_guard_1 = require("./guards/local-auth.guard");
+const login_dto_1 = require("./dto/login.dto");
+const create_user_dto_1 = require("../users/dto/create-user.dto");
 let AuthController = class AuthController {
-    authService;
     constructor(authService) {
         this.authService = authService;
     }
-    async login(loginDto) {
-        const user = await this.authService.validateUser(loginDto.email, loginDto.password);
-        if (!user) {
-            throw new common_1.UnauthorizedException("Invalid credentials");
-        }
-        return this.authService.login(user);
+    async login(req) {
+        return this.authService.login(req.user);
     }
-    async register(registerDto) {
-        return this.authService.register(registerDto);
+    async register(createUserDto) {
+        return this.authService.register(createUserDto);
     }
 };
-exports.AuthController = AuthController;
 __decorate([
-    (0, common_1.Post)("login"),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.UseGuards)(local_auth_guard_1.LocalAuthGuard),
+    (0, common_1.Post)('login'),
+    (0, swagger_1.ApiOperation)({ summary: 'Iniciar sesión' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Usuario autenticado correctamente' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Credenciales inválidas' }),
+    (0, swagger_1.ApiBody)({ type: login_dto_1.LoginDto }),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
-    (0, common_1.Post)("register"),
+    (0, common_1.Post)('register'),
+    (0, swagger_1.ApiOperation)({ summary: 'Registrar nuevo usuario' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'Usuario registrado correctamente' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Datos inválidos' }),
+    (0, swagger_1.ApiBody)({ type: create_user_dto_1.CreateUserDto }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "register", null);
-exports.AuthController = AuthController = __decorate([
-    (0, common_1.Controller)("auth"),
+AuthController = __decorate([
+    (0, swagger_1.ApiTags)('auth'),
+    (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);
+exports.AuthController = AuthController;
 //# sourceMappingURL=auth.controller.js.map
