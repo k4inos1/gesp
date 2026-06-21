@@ -22,7 +22,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     // Si la solicitud es hacia una API externa que necesita autenticación
-    if (request.url.startsWith('https://your-api-url.com')) {
+    if (this.isTrustedApiUrl(request.url)) {
       return from(this.auth.currentUser?.getIdToken() || Promise.resolve('')).pipe(
         switchMap(token => {
           if (token) {
@@ -52,6 +52,15 @@ export class AuthInterceptor implements HttpInterceptor {
         return throwError(() => error);
       })
     );
+  }
+
+  private isTrustedApiUrl(url: string): boolean {
+    try {
+      const parsedUrl = new URL(url);
+      return parsedUrl.protocol === 'https:' && parsedUrl.hostname === 'your-api-url.com';
+    } catch {
+      return false;
+    }
   }
 
   private handleAuthError(): void {
