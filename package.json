@@ -104,6 +104,7 @@
     "protobufjs": "^7.6.3",
     "shell-quote": "^1.8.2",
     "basic-ftp": "^5.0.4"
+    "protobufjs": "^7.6.3"
   },
   "description": "Aplicación web desarrollada con Angular 17 y Firebase para la gestión integral de procesos.",
   "main": "karma.conf.js",
