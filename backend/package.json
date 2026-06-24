@@ -66,6 +66,8 @@
   },
   "overrides": {
     "sha.js": "^2.4.12",
+    "body-parser": "^1.20.3",
+    "qs": "^6.15.2"
     "multer": "^2.2.0"
   },
   "jest": {
