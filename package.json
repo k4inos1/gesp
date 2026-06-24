@@ -101,6 +101,7 @@
     "typescript": "~5.3.2"
   },
   "overrides": {
+    "multer": "^2.2.0",
     "body-parser": "^1.20.3",
     "qs": "^6.15.2",
     "multer": "^2.2.0",
@@ -109,6 +110,9 @@
     "basic-ftp": "^5.0.4",
     "vite": "^5.4.20",
     "rollup": "^4.59.0"
+    "ws": "^8.17.1",
+    "tar-fs": "^3.1.2"
+    "glob": "^10.5.0"
   },
   "description": "Aplicación web desarrollada con Angular 17 y Firebase para la gestión integral de procesos.",
   "main": "karma.conf.js",
